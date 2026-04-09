@@ -17,6 +17,25 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin@stayease.local'],
             [
                 'name' => 'Admin User',
+                'role' => 'admin',
+                'password' => Hash::make('123'),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'staff@stayease.local'],
+            [
+                'name' => 'Staff User',
+                'role' => 'staff',
+                'password' => Hash::make('123'),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'customer@stayease.local'],
+            [
+                'name' => 'Customer User',
+                'role' => 'customer',
                 'password' => Hash::make('123'),
             ]
         );

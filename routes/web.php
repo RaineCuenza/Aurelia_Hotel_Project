@@ -31,7 +31,22 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('rooms.search', request()->query());
     })->name('search.page');
 
-    Route::resource('reservations', ReservationController::class);
+    Route::get('/reservations', [ReservationController::class, 'index'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.index');
+    Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
+    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+    Route::get('/reservations/{reservation}/edit', [ReservationController::class, 'edit'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.edit');
+    Route::match(['put', 'patch'], '/reservations/{reservation}', [ReservationController::class, 'update'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.update');
+    Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.destroy');
+
     Route::get('/summary.php', [ReservationController::class, 'summary'])->name('summary.page');
 
     Route::get('/reserve.php', function () {

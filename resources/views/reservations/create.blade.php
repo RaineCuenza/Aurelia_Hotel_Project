@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-3xl font-bold">New Reservation</h1>
+    <h1 class="section-title text-4xl font-semibold text-slate-900">New Reservation</h1>
+    <p class="mt-1 text-sm text-slate-500">Fill in the guest and schedule details to create a booking.</p>
 
-    <form action="{{ route('reservations.store') }}" method="POST" class="mt-6 rounded-lg bg-white p-5 shadow">
+    <form action="{{ route('reservations.store') }}" method="POST" class="surface mt-6 p-5">
         @csrf
         @include('reservations._form')
 
         <div class="mt-5 flex gap-3">
-            <button class="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">Save Reservation</button>
-            <a href="{{ route('reservations.index') }}" class="rounded bg-slate-200 px-4 py-2 font-semibold">Cancel</a>
+            <button class="btn-primary px-4 py-2.5">Save Reservation</button>
+            <a href="{{ route('reservations.index') }}" class="btn-secondary px-4 py-2.5">Cancel</a>
         </div>
     </form>
 @endsection

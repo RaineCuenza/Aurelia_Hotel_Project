@@ -1,17 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-3xl font-bold">Search Rooms</h1>
+    <h1 class="section-title text-4xl font-semibold text-slate-900">Search Rooms</h1>
+    <p class="mt-1 text-sm text-slate-500">Filter rooms by type, status, and guest capacity.</p>
 
-    <form method="GET" action="{{ route('rooms.search') }}" class="mt-5 grid gap-3 rounded-lg bg-white p-4 shadow md:grid-cols-4">
-        <select name="room_type_id" class="rounded border border-slate-300 px-3 py-2">
+    <form method="GET" action="{{ route('rooms.search') }}" class="surface mt-5 grid gap-3 p-4 md:grid-cols-4">
+        <select name="room_type_id" class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
             <option value="">All room types</option>
             @foreach ($roomTypes as $type)
                 <option value="{{ $type->id }}" @selected(request('room_type_id') == $type->id)>{{ $type->name }}</option>
             @endforeach
         </select>
 
-        <select name="status" class="rounded border border-slate-300 px-3 py-2">
+        <select name="status" class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
             <option value="">Any status</option>
             <option value="available" @selected(request('status') === 'available')>Available</option>
             <option value="occupied" @selected(request('status') === 'occupied')>Occupied</option>
@@ -19,21 +20,21 @@
         </select>
 
         <input type="number" min="1" name="guests" value="{{ request('guests') }}" placeholder="Guests"
-            class="rounded border border-slate-300 px-3 py-2">
+            class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
 
-        <button class="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">Filter</button>
+        <button class="btn-primary px-4 py-2.5">Filter</button>
     </form>
 
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         @forelse ($rooms as $room)
-            <article class="rounded-lg bg-white p-4 shadow">
-                <h2 class="text-xl font-semibold">Room {{ $room->room_number }}</h2>
+            <article class="surface p-4">
+                <h2 class="text-xl font-bold text-slate-900">Room {{ $room->room_number }}</h2>
                 <p class="mt-2 text-sm text-slate-600">Type: {{ $room->roomType->name }}</p>
                 <p class="text-sm text-slate-600">Max Guests: {{ $room->max_guests }}</p>
                 <p class="text-sm capitalize text-slate-600">Status: {{ $room->status }}</p>
-                <p class="mt-2 font-semibold text-blue-700">PHP {{ number_format($room->roomType->base_price, 2) }} / night</p>
+                <p class="mt-3 text-lg font-bold text-amber-700">PHP {{ number_format($room->roomType->base_price, 2) }} / night</p>
                 <a href="{{ route('reservations.create', ['room_id' => $room->id]) }}"
-                    class="mt-3 inline-block rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                    class="btn-primary mt-4 inline-block px-3 py-2 text-sm">
                     Reserve This Room
                 </a>
             </article>

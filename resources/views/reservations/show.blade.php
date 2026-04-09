@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-3xl font-bold">Reservation Details</h1>
+    <h1 class="section-title text-4xl font-semibold text-slate-900">Reservation Details</h1>
 
-    <div class="mt-6 rounded-lg bg-white p-5 shadow">
+    <div class="surface mt-6 p-5">
         <div class="grid gap-4 md:grid-cols-2">
             <div>
                 <p class="text-sm text-slate-500">Guest Name</p>
@@ -43,13 +43,13 @@
             </div>
             <div class="md:col-span-2">
                 <p class="text-sm text-slate-500">Total Amount</p>
-                <p class="text-xl font-bold text-blue-700">PHP {{ number_format($reservation->total_amount, 2) }}</p>
+                <p class="text-xl font-bold text-amber-700">PHP {{ number_format($reservation->total_amount, 2) }}</p>
             </div>
         </div>
 
         <div class="mt-6 flex gap-3">
-            <a href="{{ route('reservations.edit', $reservation) }}" class="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">Edit</a>
-            <a href="{{ route('reservations.index') }}" class="rounded bg-slate-200 px-4 py-2 font-semibold">Back</a>
+            <a href="{{ route('reservations.edit', $reservation) }}" class="btn-primary px-4 py-2.5">Edit</a>
+            <a href="{{ route('reservations.index') }}" class="btn-secondary px-4 py-2.5">Back</a>
         </div>
     </div>
 @endsection

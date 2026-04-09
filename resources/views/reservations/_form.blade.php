@@ -4,34 +4,34 @@
 
 <div class="grid gap-4 md:grid-cols-2">
     <div>
-        <label class="mb-1 block text-sm font-medium">Guest Name</label>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Guest Name</label>
         <input type="text" name="guest_name" value="{{ old('guest_name', $reservation->guest_name ?? '') }}" required
-            class="w-full rounded border border-slate-300 px-3 py-2">
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-medium">Guest Email</label>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Guest Email</label>
         <input type="email" name="guest_email" value="{{ old('guest_email', $reservation->guest_email ?? '') }}" required
-            class="w-full rounded border border-slate-300 px-3 py-2">
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-medium">Check-in Date</label>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Check-in Date</label>
         <input type="date" name="check_in"
             value="{{ old('check_in', isset($reservation) ? optional($reservation->check_in)->format('Y-m-d') : '') }}" required
-            class="w-full rounded border border-slate-300 px-3 py-2">
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-medium">Check-out Date</label>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Check-out Date</label>
         <input type="date" name="check_out"
             value="{{ old('check_out', isset($reservation) ? optional($reservation->check_out)->format('Y-m-d') : '') }}" required
-            class="w-full rounded border border-slate-300 px-3 py-2">
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-medium">Room</label>
-        <select name="room_id" required class="w-full rounded border border-slate-300 px-3 py-2">
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Room</label>
+        <select name="room_id" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
             <option value="">Select room</option>
             @foreach ($rooms as $room)
                 <option value="{{ $room->id }}" @selected((string) $currentRoomId === (string) $room->id)>
@@ -42,15 +42,15 @@
     </div>
 
     <div>
-        <label class="mb-1 block text-sm font-medium">Guests</label>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Guests</label>
         <input type="number" min="1" max="12" name="guests" value="{{ old('guests', $reservation->guests ?? 1) }}" required
-            class="w-full rounded border border-slate-300 px-3 py-2">
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     @isset($reservation)
         <div>
-            <label class="mb-1 block text-sm font-medium">Status</label>
-            <select name="status" class="w-full rounded border border-slate-300 px-3 py-2">
+            <label class="mb-1 block text-sm font-semibold text-slate-700">Status</label>
+            <select name="status" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
                 @foreach (['pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled'] as $status)
                     <option value="{{ $status }}" @selected(old('status', $reservation->status) === $status)>
                         {{ str_replace('_', ' ', ucfirst($status)) }}
@@ -61,7 +61,7 @@
     @endisset
 
     <div class="md:col-span-2">
-        <label class="mb-1 block text-sm font-medium">Special Requests</label>
-        <textarea name="special_requests" rows="3" class="w-full rounded border border-slate-300 px-3 py-2">{{ old('special_requests', $reservation->special_requests ?? '') }}</textarea>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">Special Requests</label>
+        <textarea name="special_requests" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">{{ old('special_requests', $reservation->special_requests ?? '') }}</textarea>
     </div>
 </div>
