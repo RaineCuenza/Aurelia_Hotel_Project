@@ -25,7 +25,14 @@
         body {
             font-family: 'Manrope', sans-serif;
             color: var(--text);
-            background: var(--bg);
+            background:
+                radial-gradient(circle at top, rgba(185, 154, 97, 0.08), transparent 28%),
+                linear-gradient(180deg, #fbf9f5 0%, var(--bg) 24%, #f7f3ee 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 6.5rem;
         }
 
         h1,
@@ -78,6 +85,34 @@
             font-size: 0.92rem;
         }
 
+        .nav-link.nav-action {
+            padding: 0.64rem 1rem;
+            border: 1px solid transparent;
+        }
+
+        .nav-link.nav-action.secondary {
+            background: #fbf8f1;
+            border-color: rgba(185, 154, 97, 0.18);
+            color: #4f4027;
+        }
+
+        .nav-link.nav-action.secondary:hover {
+            background: #f3ece0;
+            color: #342712;
+        }
+
+        .nav-link.nav-action.primary {
+            background: linear-gradient(135deg, #b99a61, #9e814d);
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(185, 154, 97, 0.18);
+        }
+
+        .nav-link.nav-action.primary:hover {
+            background: linear-gradient(135deg, #c7ac75, #aa8b54);
+            color: #fff;
+            box-shadow: 0 10px 18px rgba(185, 154, 97, 0.25);
+        }
+
         .nav-link.active {
             background: linear-gradient(135deg, #b99a61, #9e814d);
             color: #fff;
@@ -98,9 +133,10 @@
         }
 
         .top-nav-wrap {
-            background: var(--nav-bg);
+            background: rgba(255, 255, 255, 0.88);
             border-bottom: 1px solid rgba(185, 154, 97, 0.12);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
         }
 
         .profile-menu {
@@ -112,6 +148,25 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .nav-shell {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .nav-links,
+        .nav-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-actions {
+            width: 100%;
         }
 
         .notify-menu {
@@ -314,6 +369,34 @@
             background: #f9e5e5;
         }
 
+        .site-footer {
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(185, 154, 97, 0.14);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(248, 243, 234, 0.95));
+        }
+
+        .footer-link {
+            color: #6b7280;
+            transition: color 0.16s ease;
+        }
+
+        .footer-link:hover {
+            color: #2c2c2c;
+        }
+
+        .footer-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(185, 154, 97, 0.18);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.45rem 0.75rem;
+            color: #4f4027;
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
+
         .brand-logo {
             height: 58px;
             width: 58px;
@@ -339,6 +422,24 @@
             .brand-title {
                 font-size: 1.5rem;
             }
+
+            .nav-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .nav-shell {
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .nav-actions {
+                width: auto;
+                margin-left: auto;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -362,87 +463,92 @@
                     <span class="brand-title brand-font font-semibold tracking-wide">StayEase Hotel</span>
                 </a>
 
-                @auth
-                    @php
-                        $user = auth()->user();
-                        $isAdmin = $user->hasRole('admin');
-                        $isStaff = $user->hasRole('staff');
-                        $isCustomer = $user->hasRole('customer');
-                    @endphp
+                <div class="nav-shell">
+                    @auth
+                        @php
+                            $user = auth()->user();
+                            $isAdmin = $user->hasRole('admin');
+                            $isStaff = $user->hasRole('staff');
+                            $isCustomer = $user->hasRole('customer');
+                        @endphp
 
-                    <nav class="flex flex-wrap items-center gap-2 text-sm sm:ml-2 lg:flex-nowrap">
-                        @if ($isStaff && !$isAdmin)
-                            <!-- Staff Navigation -->
-                            <a href="{{ route('staff.dashboard') }}" class="nav-link {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}">Dashboard</a>
-                            <a href="{{ route('staff.reservations') }}" class="nav-link {{ request()->routeIs('staff.reservations', 'staff.reservation-detail') ? 'active' : '' }}">Reservations</a>
-                            <a href="{{ route('staff.rooms') }}" class="nav-link {{ request()->routeIs('staff.rooms') ? 'active' : '' }}">Rooms</a>
-                        @elseif ($isAdmin)
-                            <!-- Admin Navigation -->
-                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-                            <a href="{{ route('rooms.search') }}" class="nav-link {{ request()->routeIs('rooms.search') ? 'active' : '' }}">Search Rooms</a>
-                            <a href="{{ route('reservations.index') }}" class="nav-link {{ request()->routeIs('reservations.index') ? 'active' : '' }}">Manage Reservations</a>
-                            <a href="{{ route('reservations.create') }}" class="nav-link {{ request()->routeIs('reservations.create') ? 'active' : '' }}">New Reservation</a>
-                        @else
-                            <!-- Customer Navigation -->
-                            <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
-                            <a href="{{ route('customer.search') }}" class="nav-link {{ request()->routeIs('customer.search', 'customer.room.details') ? 'active' : '' }}">Search Rooms</a>
-                            <a href="{{ route('customer.history') }}" class="nav-link {{ request()->routeIs('customer.history', 'customer.booking.confirmation') ? 'active' : '' }}">My Bookings</a>
-                        @endif
-                    </nav>
+                        <nav class="nav-links text-sm">
+                            @if ($isStaff && !$isAdmin)
+                                <a href="{{ route('staff.dashboard') }}" class="nav-link {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}">Dashboard</a>
+                                <a href="{{ route('staff.reservations') }}" class="nav-link {{ request()->routeIs('staff.reservations', 'staff.reservation-detail') ? 'active' : '' }}">Reservations</a>
+                                <a href="{{ route('staff.rooms') }}" class="nav-link {{ request()->routeIs('staff.rooms') ? 'active' : '' }}">Rooms</a>
+                            @elseif ($isAdmin)
+                                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
+                                <a href="{{ route('rooms.search') }}" class="nav-link {{ request()->routeIs('rooms.search') ? 'active' : '' }}">Search Rooms</a>
+                                <a href="{{ route('reservations.index') }}" class="nav-link {{ request()->routeIs('reservations.index') ? 'active' : '' }}">Manage Reservations</a>
+                                <a href="{{ route('reservations.create') }}" class="nav-link {{ request()->routeIs('reservations.create') ? 'active' : '' }}">New Reservation</a>
+                            @else
+                                <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
+                                <a href="{{ route('customer.search') }}" class="nav-link {{ request()->routeIs('customer.search', 'customer.room.details') ? 'active' : '' }}">Search Rooms</a>
+                                <a href="{{ route('customer.history') }}" class="nav-link {{ request()->routeIs('customer.history', 'customer.booking.confirmation') ? 'active' : '' }}">My Bookings</a>
+                            @endif
+                        </nav>
 
-                    <div class="menu-cluster">
-                        <details class="notify-menu">
-                            <summary class="notify-trigger">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" class="notify-icon">
-                                    <path d="M15 17H5.5c-.7 0-1.1-.8-.7-1.4l1.5-2.2V9.7C6.3 6.6 8.8 4 12 4s5.7 2.6 5.7 5.7v3.7l1.5 2.2c.4.6 0 1.4-.7 1.4H18"></path>
-                                    <path d="M9.5 18.5c.4 1.2 1.4 1.9 2.5 1.9s2.1-.7 2.5-1.9"></path>
-                                </svg>
-                                @if (($navNotifications['count'] ?? 0) > 0)
-                                    <span class="notify-count">{{ $navNotifications['count'] > 9 ? '9+' : $navNotifications['count'] }}</span>
-                                @endif
-                            </summary>
-                            <div class="notify-dropdown">
-                                <p class="notify-title">Notifications</p>
-                                <div class="notify-list">
-                                    @foreach (($navNotifications['items'] ?? []) as $note)
-                                        @if ($note['href'])
-                                            <a href="{{ $note['href'] }}" class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</a>
-                                        @else
-                                            <p class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</p>
-                                        @endif
-                                    @endforeach
+                        <div class="menu-cluster">
+                            <details class="notify-menu">
+                                <summary class="notify-trigger">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" class="notify-icon">
+                                        <path d="M15 17H5.5c-.7 0-1.1-.8-.7-1.4l1.5-2.2V9.7C6.3 6.6 8.8 4 12 4s5.7 2.6 5.7 5.7v3.7l1.5 2.2c.4.6 0 1.4-.7 1.4H18"></path>
+                                        <path d="M9.5 18.5c.4 1.2 1.4 1.9 2.5 1.9s2.1-.7 2.5-1.9"></path>
+                                    </svg>
+                                    @if (($navNotifications['count'] ?? 0) > 0)
+                                        <span class="notify-count">{{ $navNotifications['count'] > 9 ? '9+' : $navNotifications['count'] }}</span>
+                                    @endif
+                                </summary>
+                                <div class="notify-dropdown">
+                                    <p class="notify-title">Notifications</p>
+                                    <div class="notify-list">
+                                        @foreach (($navNotifications['items'] ?? []) as $note)
+                                            @if ($note['href'])
+                                                <a href="{{ $note['href'] }}" class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</a>
+                                            @else
+                                                <p class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</p>
+                                            @endif
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
-                        </details>
+                            </details>
 
-                        <details class="profile-menu">
-                            <summary class="profile-trigger">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" class="profile-icon">
-                                    <circle cx="12" cy="8" r="4.3"></circle>
-                                    <path d="M4.5 19.5c1.8-3.5 4.2-5.2 7.5-5.2s5.7 1.7 7.5 5.2"></path>
-                                </svg>
-                            </summary>
-                            <div class="profile-dropdown">
-                                <p class="profile-name">{{ $user->name }}</p>
-                                <p class="profile-email">{{ $user->email }}</p>
-                                <div class="profile-divider"></div>
-                                <form action="{{ route('logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="logout-item">Sign out</button>
-                                </form>
-                            </div>
-                        </details>
-                    </div>
-                @endauth
+                            <details class="profile-menu">
+                                <summary class="profile-trigger">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" class="profile-icon">
+                                        <circle cx="12" cy="8" r="4.3"></circle>
+                                        <path d="M4.5 19.5c1.8-3.5 4.2-5.2 7.5-5.2s5.7 1.7 7.5 5.2"></path>
+                                    </svg>
+                                </summary>
+                                <div class="profile-dropdown">
+                                    <p class="profile-name">{{ $user->name }}</p>
+                                    <p class="profile-email">{{ $user->email }}</p>
+                                    <div class="profile-divider"></div>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="logout-item">Sign out</button>
+                                    </form>
+                                </div>
+                            </details>
+                        </div>
+                    @endauth
 
-                @guest
-                    <nav class="flex flex-wrap items-center gap-2 text-sm sm:ml-2 lg:flex-nowrap">
-                        <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
-                        <a href="{{ route('customer.search') }}" class="nav-link {{ request()->routeIs('customer.search', 'customer.room.details') ? 'active' : '' }}">Search Rooms</a>
-                        <a href="{{ route('login') }}" class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}">Login</a>
-                        <a href="{{ route('register') }}" class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}">Register</a>
-                    </nav>
-                @endguest
+                    @guest
+                        <nav class="nav-links text-sm">
+                            <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
+                            <a href="{{ route('customer.search') }}" class="nav-link {{ request()->routeIs('customer.search', 'customer.room.details') ? 'active' : '' }}">Browse Rooms</a>
+                            <a href="{{ route('customer.home') }}#featured-rooms" class="nav-link">Featured Rooms</a>
+                            <a href="{{ route('customer.home') }}#how-it-works" class="nav-link">How It Works</a>
+                            <a href="{{ route('customer.home') }}#about-us" class="nav-link">About Us</a>
+                        </nav>
+
+                        <div class="nav-actions">
+                            <a href="{{ route('login') }}" class="nav-link nav-action secondary">Sign In</a>
+                            <a href="{{ route('register') }}" class="nav-link nav-action primary">Join Us</a>
+                        </div>
+                    @endguest
+                </div>
             </div>
             <div class="luxury-divider mx-4 sm:mx-6"></div>
         </header>
@@ -467,6 +573,51 @@
 
                 @yield('content')
         </main>
+
+        <footer class="site-footer">
+            <div class="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.3fr_0.9fr_0.9fr] lg:py-10">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
+                        <div>
+                            <p class="brand-font text-3xl font-semibold leading-none text-stone-900">StayEase Hotel</p>
+                            <p class="mt-1 text-sm text-stone-600">Clean booking flow, premium stays, and responsive service.</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 max-w-md text-sm leading-relaxed text-stone-600">
+                        A polished hospitality experience designed to help guests discover rooms quickly, book confidently,
+                        and return with ease.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="section-title text-2xl font-bold text-stone-900">Quick Links</h2>
+                    <div class="mt-4 flex flex-col gap-2 text-sm">
+                        <a href="{{ route('customer.home') }}" class="footer-link">Home</a>
+                        <a href="{{ route('customer.search') }}" class="footer-link">Browse Rooms</a>
+                        <a href="{{ route('customer.home') }}#featured-rooms" class="footer-link">Featured Rooms</a>
+                        <a href="{{ route('customer.home') }}#about-us" class="footer-link">About Us</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="section-title text-2xl font-bold text-stone-900">Stay Connected</h2>
+                    <div class="mt-4 flex flex-col gap-2 text-sm">
+                        <span class="footer-chip">Open daily for bookings</span>
+                        <span class="footer-chip">Support available 24/7</span>
+                        <span class="footer-chip">Fast room discovery</span>
+                    </div>
+                    <p class="mt-4 text-sm text-stone-600">Login for reservations, or register to manage your stays in one place.</p>
+                </div>
+            </div>
+
+            <div class="luxury-divider mx-4 sm:mx-6"></div>
+
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 text-sm text-stone-500 sm:px-6 md:flex-row md:items-center md:justify-between">
+                <p>© {{ now()->year }} StayEase Hotel. All rights reserved.</p>
+                <p>Refined hospitality, from search to stay.</p>
+            </div>
+        </footer>
     </div>
 
     <script>

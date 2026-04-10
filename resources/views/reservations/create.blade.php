@@ -128,12 +128,12 @@
 
                     <div>
                         <label class="field-label">Check-in Date</label>
-                        <input id="check_in" type="date" name="check_in" value="{{ old('check_in') }}" required class="field-input">
+                        <input id="check_in" type="date" name="check_in" value="{{ old('check_in', now()->toDateString()) }}" required class="field-input">
                     </div>
 
                     <div>
                         <label class="field-label">Check-out Date</label>
-                        <input id="check_out" type="date" name="check_out" value="{{ old('check_out') }}" required class="field-input">
+                        <input id="check_out" type="date" name="check_out" value="{{ old('check_out', now()->addDay()->toDateString()) }}" required class="field-input">
                     </div>
                 </div>
 

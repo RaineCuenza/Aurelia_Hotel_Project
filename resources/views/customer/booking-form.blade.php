@@ -87,11 +87,11 @@
                     </div>
                     <div>
                         <label class="field-label" for="check_in">Check-In</label>
-                        <input id="check_in" name="check_in" type="date" required class="field-input" min="{{ now()->toDateString() }}" value="{{ old('check_in', $checkIn) }}">
+                        <input id="check_in" name="check_in" type="date" required class="field-input" min="{{ now()->toDateString() }}" value="{{ old('check_in', $checkIn ?? now()->toDateString()) }}">
                     </div>
                     <div>
                         <label class="field-label" for="check_out">Check-Out</label>
-                        <input id="check_out" name="check_out" type="date" required class="field-input" min="{{ now()->toDateString() }}" value="{{ old('check_out', $checkOut) }}">
+                        <input id="check_out" name="check_out" type="date" required class="field-input" min="{{ now()->toDateString() }}" value="{{ old('check_out', $checkOut ?? now()->addDay()->toDateString()) }}">
                     </div>
                 </div>
 

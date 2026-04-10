@@ -18,14 +18,14 @@
     <div>
         <label class="mb-1 block text-sm font-semibold text-slate-700">Check-in Date</label>
         <input type="date" name="check_in"
-            value="{{ old('check_in', isset($reservation) ? optional($reservation->check_in)->format('Y-m-d') : '') }}" required
+            value="{{ old('check_in', isset($reservation) ? optional($reservation->check_in)->format('Y-m-d') : now()->toDateString()) }}" required
             class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 
     <div>
         <label class="mb-1 block text-sm font-semibold text-slate-700">Check-out Date</label>
         <input type="date" name="check_out"
-            value="{{ old('check_out', isset($reservation) ? optional($reservation->check_out)->format('Y-m-d') : '') }}" required
+            value="{{ old('check_out', isset($reservation) ? optional($reservation->check_out)->format('Y-m-d') : now()->addDay()->toDateString()) }}" required
             class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-700">
     </div>
 

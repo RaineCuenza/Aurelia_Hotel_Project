@@ -57,8 +57,8 @@
     <p class="mt-1 text-sm text-stone-600">Find your ideal stay based on your selected dates.</p>
 
     <form method="GET" action="{{ route('customer.search') }}" class="search-shell mt-5 grid gap-3 md:grid-cols-5">
-        <input type="date" name="check_in" value="{{ request('check_in') }}" class="filter-input" min="{{ now()->toDateString() }}" required>
-        <input type="date" name="check_out" value="{{ request('check_out') }}" class="filter-input" min="{{ now()->toDateString() }}" required>
+        <input type="date" name="check_in" value="{{ request('check_in', now()->toDateString()) }}" class="filter-input" min="{{ now()->toDateString() }}" required>
+        <input type="date" name="check_out" value="{{ request('check_out', now()->addDay()->toDateString()) }}" class="filter-input" min="{{ now()->toDateString() }}" required>
         <input type="number" name="guests" value="{{ request('guests') }}" min="1" max="12" placeholder="Guests" class="filter-input" required>
 
         <select name="room_type_id" class="filter-input">

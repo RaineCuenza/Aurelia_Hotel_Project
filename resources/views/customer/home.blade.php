@@ -164,6 +164,19 @@
             background: #fff;
         }
 
+        .cta-primary {
+            width: 100%;
+            min-width: 17.5rem;
+            padding: 1.15rem 2rem;
+            font-size: 1.08rem;
+            border-radius: 14px;
+            box-shadow: 0 12px 24px rgba(185, 154, 97, 0.22);
+        }
+
+        .cta-primary:hover {
+            box-shadow: 0 14px 28px rgba(185, 154, 97, 0.28);
+        }
+
         @media (max-width: 1024px) {
             .hero-grid {
                 grid-template-columns: 1fr;
@@ -189,12 +202,12 @@
                 <form method="GET" action="{{ route('customer.search') }}" class="booking-card grid gap-3 md:grid-cols-2">
                     <div>
                         <label class="field-label" for="check_in">Check-In</label>
-                        <input id="check_in" name="check_in" type="date" class="field-input" required min="{{ now()->toDateString() }}">
+                        <input id="check_in" name="check_in" type="date" class="field-input" required min="{{ now()->toDateString() }}" value="{{ old('check_in', now()->toDateString()) }}">
                     </div>
 
                     <div>
                         <label class="field-label" for="check_out">Check-Out</label>
-                        <input id="check_out" name="check_out" type="date" class="field-input" required min="{{ now()->toDateString() }}">
+                        <input id="check_out" name="check_out" type="date" class="field-input" required min="{{ now()->toDateString() }}" value="{{ old('check_out', now()->addDay()->toDateString()) }}">
                     </div>
 
                     <div>
@@ -235,7 +248,7 @@
         </div>
     </section>
 
-    <section class="mt-8">
+    <section id="featured-rooms" class="mt-8 scroll-mt-24">
         <div class="mb-3 flex items-end justify-between">
             <div>
                 <h2 class="section-title text-3xl font-bold text-stone-900">Featured Room Types</h2>
@@ -281,7 +294,7 @@
         </div>
     </section>
 
-    <section class="mt-7">
+    <section id="how-it-works" class="mt-7 scroll-mt-24">
         <div class="mb-3">
             <h2 class="section-title text-3xl font-bold text-stone-900">How Booking Works</h2>
             <p class="mt-1 text-sm text-stone-600">A simple 3-step flow for your next trip.</p>
@@ -306,20 +319,56 @@
         </div>
     </section>
 
-    <section class="cta-shell">
-        <div class="flex flex-wrap items-end justify-between gap-4">
+    <section id="about-us" class="highlight-shell scroll-mt-24">
+        <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-amber-800">About Us</p>
+                <h2 class="section-title mt-2 text-4xl font-bold text-stone-900">Hospitality designed to feel calm, clear, and premium.</h2>
+                <p class="mt-3 text-sm leading-relaxed text-stone-600">
+                    StayEase Hotel is built around a simple idea: booking a stay should feel easy, refined, and trustworthy.
+                    We combine thoughtful room curation, responsive service, and a streamlined reservation flow so guests can
+                    focus on the trip, not the process.
+                </p>
+                <p class="mt-3 text-sm leading-relaxed text-stone-600">
+                    From the first search to check-out, every part of the experience is shaped to be efficient for guests and
+                    manageable for our team. That balance is what keeps the experience polished and professional.
+                </p>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <article class="highlight-card">
+                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Focus</p>
+                    <p class="mt-1 text-2xl font-bold text-amber-800">Guest-first</p>
+                    <p class="mt-1 text-sm text-stone-600">A booking flow centered on clarity and confidence.</p>
+                </article>
+                <article class="highlight-card">
+                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Standard</p>
+                    <p class="mt-1 text-2xl font-bold text-amber-800">Professional</p>
+                    <p class="mt-1 text-sm text-stone-600">A consistent presentation across booking and support.</p>
+                </article>
+                <article class="highlight-card">
+                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Experience</p>
+                    <p class="mt-1 text-2xl font-bold text-amber-800">Efficient</p>
+                    <p class="mt-1 text-sm text-stone-600">Fast room discovery and simple reservation steps.</p>
+                </article>
+                <article class="highlight-card">
+                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Support</p>
+                    <p class="mt-1 text-2xl font-bold text-amber-800">Reliable</p>
+                    <p class="mt-1 text-sm text-stone-600">Responsive service before, during, and after arrival.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-shell">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+            <div class="max-w-2xl">
                 <p class="text-xs uppercase tracking-[0.18em] text-amber-900">Ready To Stay With Us</p>
                 <h2 class="section-title mt-2 text-4xl font-bold text-stone-900">Book Your Next Luxury Escape</h2>
                 <p class="mt-2 text-sm text-stone-700">Explore room availability now and secure the dates that fit your travel plans.</p>
             </div>
-            <div class="flex w-full flex-wrap gap-3 sm:w-auto">
-                <a href="{{ route('customer.search') }}" class="btn-gold text-center sm:min-w-45">Start Booking</a>
-                @guest
-                    <a href="{{ route('register') }}" class="btn-outline text-center sm:min-w-45">Create Account</a>
-                @else
-                    <a href="{{ route('customer.history') }}" class="btn-outline text-center sm:min-w-45">My Reservations</a>
-                @endguest
+            <div class="w-full sm:w-auto lg:shrink-0 lg:self-center">
+                <a href="{{ route('customer.search') }}" class="btn-gold cta-primary text-center">Start Booking</a>
             </div>
         </div>
     </section>
