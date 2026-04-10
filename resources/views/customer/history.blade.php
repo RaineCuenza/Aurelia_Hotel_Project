@@ -37,9 +37,40 @@
 
     <div class="history-shell">
         <h1 class="section-title text-4xl font-bold text-stone-900">My Reservations</h1>
-        <p class="mt-1 text-sm text-stone-600">Track upcoming stays and your booking history.</p>
 
         <section class="mt-6">
+            <h2 class="section-title text-3xl font-semibold text-stone-900">Active Stay</h2>
+            <div class="table-card mt-3 overflow-x-auto">
+                <table class="w-full min-w-[720px] text-left text-sm">
+                    <thead>
+                        <tr class="text-stone-500">
+                            <th class="py-3 pr-3">Reference</th>
+                            <th class="py-3 pr-3">Room</th>
+                            <th class="py-3 pr-3">Dates</th>
+                            <th class="py-3 pr-3">Total</th>
+                            <th class="py-3 pr-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($activeStay as $reservation)
+                            <tr class="border-t border-stone-200 text-stone-800">
+                                <td class="py-3 pr-3 font-medium">AUR-{{ $reservation->created_at->format('Ymd') }}-{{ str_pad((string) $reservation->id, 6, '0', STR_PAD_LEFT) }}</td>
+                                <td class="py-3 pr-3">{{ $reservation->room->roomType->name }} ({{ $reservation->room->room_number }})</td>
+                                <td class="py-3 pr-3">{{ $reservation->check_in->format('M d, Y') }} - {{ $reservation->check_out->format('M d, Y') }}</td>
+                                <td class="py-3 pr-3 font-semibold">PHP {{ number_format((float) $reservation->total_amount, 2) }}</td>
+                                <td class="py-3 pr-3"><span class="status-badge status-{{ $reservation->status }}">{{ str_replace('_', ' ', $reservation->status) }}</span></td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-4 text-stone-500">You have no active stay right now.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="mt-7">
             <h2 class="section-title text-3xl font-semibold text-stone-900">Upcoming Bookings</h2>
             <div class="table-card mt-3 overflow-x-auto">
                 <table class="w-full min-w-[720px] text-left text-sm">

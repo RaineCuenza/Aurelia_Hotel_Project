@@ -43,12 +43,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/my-reservations', [CustomerController::class, 'history'])->name('customer.history');
     });
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('dashboard');
     Route::get('/dashboard.php', function () {
         return redirect()->route('dashboard');
     })->name('dashboard.page');
 
-    Route::get('/rooms/search', [RoomSearchController::class, 'index'])->name('rooms.search');
+    Route::get('/rooms/search', [RoomSearchController::class, 'index'])
+        ->middleware('role:admin,staff')
+        ->name('rooms.search');
     Route::get('/search.php', function () {
         return redirect()->route('rooms.search', request()->query());
     })->name('search.page');
@@ -56,9 +60,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index'])
         ->middleware('role:admin,staff')
         ->name('reservations.index');
-    Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
-    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+    Route::get('/reservations/create', [ReservationController::class, 'create'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.create');
+    Route::post('/reservations', [ReservationController::class, 'store'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.store');
+    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])
+        ->middleware('role:admin,staff')
+        ->name('reservations.show');
     Route::get('/reservations/{reservation}/edit', [ReservationController::class, 'edit'])
         ->middleware('role:admin,staff')
         ->name('reservations.edit');
@@ -72,11 +82,13 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:admin,staff')
         ->name('reservations.destroy');
 
-    Route::get('/summary.php', [ReservationController::class, 'summary'])->name('summary.page');
+    Route::get('/summary.php', [ReservationController::class, 'summary'])
+        ->middleware('role:admin,staff')
+        ->name('summary.page');
 
     Route::get('/reserve.php', function () {
         return redirect()->route('reservations.create', request()->query());
-    })->name('reserve.page');
+    })->middleware('role:admin,staff')->name('reserve.page');
 
     // Staff Routes
     Route::middleware('role:staff,admin')->group(function () {

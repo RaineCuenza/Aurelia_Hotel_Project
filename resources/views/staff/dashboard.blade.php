@@ -221,7 +221,7 @@
                                 <p class="guest-room">Room {{ $reservation->room->room_number }} • {{ $reservation->room->roomType->name }}</p>
                             </div>
                             @if ($reservation->status === 'confirmed')
-                                <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="ml-2">
+                                <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="ml-2" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                                     @csrf
                                     <button type="submit" class="action-btn btn-checkin">Check-in</button>
                                 </form>
@@ -249,7 +249,7 @@
                                 <p class="guest-name">{{ $reservation->guest_name }}</p>
                                 <p class="guest-room">Room {{ $reservation->room->room_number }} • {{ $reservation->room->roomType->name }}</p>
                             </div>
-                            <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="ml-2">
+                            <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="ml-2" data-confirm-action="Confirm check-out for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-out" data-confirm-button="Yes, Check-out" data-loader-message="Checking out guest...">
                                 @csrf
                                 <button type="submit" class="action-btn btn-checkout">Check-out</button>
                             </form>

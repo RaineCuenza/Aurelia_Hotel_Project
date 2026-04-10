@@ -496,6 +496,88 @@
             background: rgba(0, 0, 0, 0.05);
         }
 
+        .action-guard {
+            position: fixed;
+            inset: 0;
+            z-index: 110;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 1rem;
+            background: rgba(20, 18, 15, 0.22);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .action-guard.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .action-guard-card {
+            width: min(92vw, 360px);
+            border-radius: 14px;
+            border: 1px solid rgba(185, 154, 97, 0.32);
+            background: #fff;
+            box-shadow: 0 20px 36px rgba(35, 28, 18, 0.24);
+            padding: 0.95rem;
+            transform: translateY(8px);
+            transition: transform 0.2s ease;
+        }
+
+        .action-guard.active .action-guard-card {
+            transform: translateY(0);
+        }
+
+        .action-guard-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #2c2c2c;
+        }
+
+        .action-guard-message {
+            margin-top: 0.32rem;
+            font-size: 0.86rem;
+            color: #6b7280;
+            line-height: 1.45;
+        }
+
+        .action-guard-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.55rem;
+            margin-top: 0.8rem;
+        }
+
+        .guard-btn {
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, opacity 0.16s ease;
+        }
+
+        .guard-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.92;
+        }
+
+        .guard-btn-cancel {
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .guard-btn-confirm {
+            background: linear-gradient(135deg, #b99a61, #9e814d);
+            color: #fff;
+        }
+
         .page-loader {
             position: fixed;
             inset: 0;
@@ -799,10 +881,26 @@
         </div>
     </div>
 
+    <div id="action-guard" class="action-guard" aria-hidden="true">
+        <div class="action-guard-card" role="dialog" aria-modal="true" aria-labelledby="action-guard-title" aria-describedby="action-guard-message">
+            <p id="action-guard-title" class="action-guard-title">Confirm action</p>
+            <p id="action-guard-message" class="action-guard-message">Please confirm before continuing.</p>
+            <div class="action-guard-actions">
+                <button id="action-guard-cancel" type="button" class="guard-btn guard-btn-cancel">Cancel</button>
+                <button id="action-guard-confirm" type="button" class="guard-btn guard-btn-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('global-loader');
             const loaderMessage = document.getElementById('global-loader-message');
+            const actionGuard = document.getElementById('action-guard');
+            const actionGuardTitle = document.getElementById('action-guard-title');
+            const actionGuardMessage = document.getElementById('action-guard-message');
+            const actionGuardConfirm = document.getElementById('action-guard-confirm');
+            const actionGuardCancel = document.getElementById('action-guard-cancel');
             let isLoaderVisible = false;
 
             const showLoader = (message) => {
@@ -836,9 +934,85 @@
                 hide: hideLoader,
             };
 
+            const requestActionGuard = ({ title, message, confirmText }) => {
+                if (!actionGuard || !actionGuardTitle || !actionGuardMessage || !actionGuardConfirm || !actionGuardCancel) {
+                    return Promise.resolve(window.confirm(message || 'Are you sure you want to continue?'));
+                }
+
+                actionGuardTitle.textContent = title || 'Confirm action';
+                actionGuardMessage.textContent = message || 'Please confirm before continuing.';
+                actionGuardConfirm.textContent = confirmText || 'Confirm';
+                actionGuard.classList.add('active');
+                actionGuard.setAttribute('aria-hidden', 'false');
+
+                return new Promise((resolve) => {
+                    const cleanup = () => {
+                        actionGuard.classList.remove('active');
+                        actionGuard.setAttribute('aria-hidden', 'true');
+                        actionGuardConfirm.removeEventListener('click', onConfirm);
+                        actionGuardCancel.removeEventListener('click', onCancel);
+                        actionGuard.removeEventListener('click', onBackdrop);
+                        document.removeEventListener('keydown', onEscape);
+                    };
+
+                    const onConfirm = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const onCancel = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+
+                    const onBackdrop = (event) => {
+                        if (event.target === actionGuard) {
+                            onCancel();
+                        }
+                    };
+
+                    const onEscape = (event) => {
+                        if (event.key === 'Escape') {
+                            onCancel();
+                        }
+                    };
+
+                    actionGuardConfirm.addEventListener('click', onConfirm);
+                    actionGuardCancel.addEventListener('click', onCancel);
+                    actionGuard.addEventListener('click', onBackdrop);
+                    document.addEventListener('keydown', onEscape);
+                });
+            };
+
             document.querySelectorAll('form:not([data-no-loader])').forEach((form) => {
                 form.addEventListener('submit', (event) => {
                     const submitter = event.submitter;
+
+                    const confirmMessage = submitter?.dataset.confirmAction || form.dataset.confirmAction;
+                    if (confirmMessage && form.dataset.confirmedAction !== '1') {
+                        event.preventDefault();
+
+                        requestActionGuard({
+                            title: submitter?.dataset.confirmTitle || form.dataset.confirmTitle,
+                            message: confirmMessage,
+                            confirmText: submitter?.dataset.confirmButton || form.dataset.confirmButton,
+                        }).then((confirmed) => {
+                            if (!confirmed) {
+                                return;
+                            }
+
+                            form.dataset.confirmedAction = '1';
+                            if (typeof form.requestSubmit === 'function') {
+                                form.requestSubmit(submitter || undefined);
+                            } else {
+                                form.submit();
+                            }
+                        });
+
+                        return;
+                    }
+
+                    form.dataset.confirmedAction = '0';
 
                     if (submitter?.hasAttribute('data-no-loader')) {
                         return;

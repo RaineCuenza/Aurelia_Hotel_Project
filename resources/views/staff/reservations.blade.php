@@ -175,14 +175,14 @@
                             <td class="py-3 pr-3">
                                 <div class="flex flex-wrap gap-2">
                                     @if ($reservation->status === 'confirmed')
-                                        <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline">
+                                        <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                                             @csrf
                                             <button class="action-link btn-checkin">Check-in</button>
                                         </form>
                                     @endif
 
                                     @if ($reservation->status === 'checked_in')
-                                        <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="inline">
+                                        <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-out for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-out" data-confirm-button="Yes, Check-out" data-loader-message="Checking out guest...">
                                             @csrf
                                             <button class="action-link btn-checkout">Check-out</button>
                                         </form>

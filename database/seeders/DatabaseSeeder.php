@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             RoomTypeSeeder::class,
             RoomSeeder::class,
+            CheckoutTestSeeder::class,
         ]);
     }
 }

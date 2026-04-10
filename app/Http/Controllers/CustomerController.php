@@ -161,19 +161,31 @@ class CustomerController extends Controller
         $user = $request->user();
         $today = Carbon::today();
 
+        $activeStay = Reservation::with('room.roomType')
+            ->where('user_id', $user->id)
+            ->where('status', 'checked_in')
+            ->whereDate('check_out', '>=', $today)
+            ->orderBy('check_out')
+            ->get();
+
         $upcoming = Reservation::with('room.roomType')
             ->where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->whereDate('check_out', '>=', $today)
             ->orderBy('check_in')
             ->get();
 
         $past = Reservation::with('room.roomType')
             ->where('user_id', $user->id)
-            ->whereDate('check_out', '<', $today)
+            ->where(function ($query) use ($today) {
+                $query->where('status', 'checked_out')
+                    ->orWhereDate('check_out', '<', $today);
+            })
             ->latest('check_out')
             ->get();
 
         return view('customer.history', [
+            'activeStay' => $activeStay,
             'upcoming' => $upcoming,
             'past' => $past,
         ]);

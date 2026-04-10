@@ -176,7 +176,7 @@
         @if ($reservation->status === 'confirmed')
             <div class="glass-panel p-5 sm:p-6">
                 <p class="text-gray-600 mb-4">This guest is ready to check in.</p>
-                <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline">
+                <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                     @csrf
                     <button type="submit" class="action-btn btn-checkin">Check-in Guest</button>
                 </form>
@@ -184,7 +184,7 @@
         @elseif ($reservation->status === 'checked_in')
             <div class="glass-panel p-5 sm:p-6">
                 <p class="text-gray-600 mb-4">The guest is currently checked in. Process check-out below.</p>
-                <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="inline">
+                <form action="{{ route('staff.checkout', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-out for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-out" data-confirm-button="Yes, Check-out" data-loader-message="Checking out guest...">
                     @csrf
                     <button type="submit" class="action-btn btn-checkout">Check-out Guest</button>
                 </form>
