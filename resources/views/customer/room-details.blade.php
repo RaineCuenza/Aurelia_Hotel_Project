@@ -63,6 +63,12 @@
                 <p class="text-2xl font-bold text-amber-800">PHP {{ number_format((float) $room->roomType->base_price, 2) }} / night</p>
             </div>
 
+            @if ($room->status !== 'available')
+                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    This room is currently {{ $room->status }} and cannot be booked right now.
+                </div>
+            @endif
+
             <div class="mt-5 flex flex-wrap gap-2">
                 <span class="amenity-chip">Luxury Bedding</span>
                 <span class="amenity-chip">Smart TV</span>
@@ -73,7 +79,9 @@
             </div>
 
             <div class="mt-6 flex flex-wrap gap-3">
-                <a href="{{ route('customer.booking.form', ['room' => $room->id, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests]) }}" class="btn-gold">Book Now</a>
+                @if ($room->status === 'available')
+                    <a href="{{ route('customer.booking.form', ['room' => $room->id, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests]) }}" class="btn-gold">Book Now</a>
+                @endif
                 <a href="{{ route('customer.search', ['check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests]) }}" class="rounded-xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50">Back to Search</a>
             </div>
         </div>

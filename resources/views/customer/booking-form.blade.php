@@ -64,13 +64,21 @@
             <p class="text-sm font-semibold text-stone-600">Room {{ $room->room_number }} • {{ $room->roomType->name }}</p>
         </div>
 
+        @if ($room->status !== 'available')
+            <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                This room is currently {{ $room->status }} and can no longer be booked.
+                <a href="{{ route('customer.search', ['check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests]) }}" class="font-semibold underline">Return to search</a>
+                for other available rooms.
+            </div>
+        @endif
+
         <div class="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
             <form action="{{ route('customer.booking.store', $room) }}" method="POST" class="panel grid gap-4">
                 @csrf
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <div>
-                        <label class="field-label" for="guest_name">Full Name</label>
+                        <label class="field-label" for="guest_name">Guest Name</label>
                         <input id="guest_name" name="guest_name" type="text" required class="field-input" value="{{ old('guest_name', auth()->user()->name ?? '') }}">
                     </div>
                     <div>
@@ -100,7 +108,9 @@
                     <textarea id="special_requests" name="special_requests" rows="4" class="field-input">{{ old('special_requests') }}</textarea>
                 </div>
 
-                <button type="submit" class="btn-gold">Confirm Booking</button>
+                @if ($room->status === 'available')
+                    <button type="submit" class="btn-gold">Confirm Booking</button>
+                @endif
             </form>
 
             <aside class="panel">

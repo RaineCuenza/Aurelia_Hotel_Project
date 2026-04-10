@@ -51,6 +51,10 @@
             color: #0c4a6e;
         }
 
+        .stat-color-reserved {
+            color: #92400e;
+        }
+
         .stat-color-cleaning {
             color: #7c2d12;
         }
@@ -175,6 +179,13 @@
                 <div>
                     <p class="stat-label">Available</p>
                     <p class="stat-value mt-2 stat-color-available">{{ $availableRooms }}</p>
+                </div>
+            </div>
+
+            <div class="glass-panel stat-card">
+                <div>
+                    <p class="stat-label">Reserved</p>
+                    <p class="stat-value mt-2 stat-color-reserved">{{ $reservedRooms }}</p>
                 </div>
             </div>
 

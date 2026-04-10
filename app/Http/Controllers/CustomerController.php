@@ -133,6 +133,8 @@ class CustomerController extends Controller
                 'total_amount' => $total,
             ]);
 
+            $lockedRoom->update(['status' => 'reserved']);
+
             return $reservation;
         });
 

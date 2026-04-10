@@ -41,6 +41,7 @@ class StaffController extends Controller
         // Room status breakdown
         $totalRooms = Room::count();
         $availableRooms = Room::where('status', 'available')->count();
+        $reservedRooms = Room::where('status', 'reserved')->count();
         $occupiedRooms = Room::where('status', 'occupied')->count();
         $cleaningRooms = Room::where('status', 'cleaning')->count();
 
@@ -55,6 +56,7 @@ class StaffController extends Controller
             'activeGuests' => $activeGuests,
             'totalRooms' => $totalRooms,
             'availableRooms' => $availableRooms,
+            'reservedRooms' => $reservedRooms,
             'occupiedRooms' => $occupiedRooms,
             'cleaningRooms' => $cleaningRooms,
             'roomStatus' => $roomStatus,
@@ -146,6 +148,7 @@ class StaffController extends Controller
         $stats = [
             'total' => Room::count(),
             'available' => Room::where('status', 'available')->count(),
+            'reserved' => Room::where('status', 'reserved')->count(),
             'occupied' => Room::where('status', 'occupied')->count(),
             'cleaning' => Room::where('status', 'cleaning')->count(),
         ];

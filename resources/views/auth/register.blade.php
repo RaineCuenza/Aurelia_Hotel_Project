@@ -83,9 +83,16 @@
 
         <form action="{{ route('register.attempt') }}" method="POST" class="mt-6 space-y-4">
             @csrf
-            <div>
-                <label class="mb-2 block text-sm font-semibold text-gray-700" for="name">Full Name</label>
-                <input id="name" name="name" type="text" value="{{ old('name') }}" required class="form-input w-full px-3 py-2.5">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-700" for="first_name">First Name</label>
+                    <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" required class="form-input w-full px-3 py-2.5">
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-700" for="last_name">Last Name</label>
+                    <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" required class="form-input w-full px-3 py-2.5">
+                </div>
             </div>
 
             <div>

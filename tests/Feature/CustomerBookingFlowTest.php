@@ -17,7 +17,8 @@ class CustomerBookingFlowTest extends TestCase
     public function test_customer_login_redirects_to_home(): void
     {
         $user = User::create([
-            'name' => 'Customer User',
+            'first_name' => 'Customer',
+            'last_name' => 'User',
             'email' => 'customer.flow@example.com',
             'role' => 'customer',
             'password' => 'secret123',
@@ -65,7 +66,8 @@ class CustomerBookingFlowTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2026-04-10'));
 
         $customer = User::create([
-            'name' => 'Booking Customer',
+            'first_name' => 'Booking',
+            'last_name' => 'Customer',
             'email' => 'booking.customer@example.com',
             'role' => 'customer',
             'password' => 'secret123',
@@ -104,7 +106,8 @@ class CustomerBookingFlowTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2026-04-10'));
 
         $customer = User::create([
-            'name' => 'Booking Customer 2',
+            'first_name' => 'Booking',
+            'last_name' => 'Customer 2',
             'email' => 'booking.customer2@example.com',
             'role' => 'customer',
             'password' => 'secret123',
@@ -139,6 +142,24 @@ class CustomerBookingFlowTest extends TestCase
         $this->assertNotNull($reservation);
         $response->assertRedirect(route('customer.booking.confirmation', $reservation));
         $this->assertEquals(2, Reservation::count());
+        $this->assertSame('reserved', $room->fresh()->status);
+    }
+
+    public function test_reserved_room_does_not_appear_in_search_results(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-04-10'));
+
+        $room = $this->createAvailableRoom('203');
+        $room->update(['status' => 'reserved']);
+
+        $response = $this->get(route('customer.search', [
+            'check_in' => '2026-04-11',
+            'check_out' => '2026-04-12',
+            'guests' => 2,
+        ]));
+
+        $response->assertOk();
+        $response->assertDontSee('Room 203');
     }
 
     private function createAvailableRoom(string $roomNumber): Room

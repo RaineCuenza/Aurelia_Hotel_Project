@@ -101,7 +101,7 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <div>
                         <label class="field-label">Guest Name</label>
-                        <input type="text" name="guest_name" value="{{ old('guest_name') }}" required class="field-input" placeholder="Enter guest full name">
+                        <input type="text" name="guest_name" value="{{ old('guest_name') }}" required class="field-input" placeholder="Enter guest name">
                     </div>
 
                     <div>

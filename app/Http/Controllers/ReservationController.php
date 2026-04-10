@@ -73,7 +73,7 @@ class ReservationController extends Controller
                 'status' => 'confirmed',
             ]);
 
-            $room->update(['status' => 'occupied']);
+            $room->update(['status' => 'reserved']);
         });
 
         return redirect()->route('reservations.index')->with('success', 'Reservation created successfully.');

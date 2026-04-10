@@ -80,6 +80,8 @@ class ReservationApiController extends Controller
             'status' => $payload['status'] ?? 'pending',
         ]);
 
+        $room->update(['status' => 'reserved']);
+
         $reservation->load(['room.roomType', 'user']);
 
         return response()->json([
@@ -108,6 +110,8 @@ class ReservationApiController extends Controller
             ...$payload,
             'total_amount' => $total,
         ]);
+
+        $room->update(['status' => 'reserved']);
 
         $reservation->load(['room.roomType', 'user']);
 
