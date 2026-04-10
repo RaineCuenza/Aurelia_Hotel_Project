@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Reservation;
 use App\Models\Room;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class ReservationController extends Controller
 {
@@ -55,17 +57,24 @@ class ReservationController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateReservation($request);
-        $room = Room::with('roomType')->findOrFail($validated['room_id']);
+        DB::transaction(function () use ($request, $validated) {
+            $room = Room::with('roomType')->lockForUpdate()->findOrFail($validated['room_id']);
+            $this->ensureRoomIsAvailable($room, $validated['check_in'], $validated['check_out']);
 
-        $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
-        $total = $nights * $room->roomType->base_price;
+            $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
+            $total = $nights * $room->roomType->base_price;
 
-        Reservation::create([
-            ...$validated,
-            'user_id' => $request->user()?->id,
-            'total_amount' => $total,
-            'status' => $validated['status'] ?? 'pending',
-        ]);
+            Reservation::create([
+                ...$validated,
+                'user_id' => $request->user()?->id,
+                'guests' => $validated['guests'] ?? 1,
+                'guest_phone' => $validated['guest_phone'] ?? null,
+                'total_amount' => $total,
+                'status' => 'confirmed',
+            ]);
+
+            $room->update(['status' => 'occupied']);
+        });
 
         return redirect()->route('reservations.index')->with('success', 'Reservation created successfully.');
     }
@@ -101,12 +110,16 @@ class ReservationController extends Controller
     {
         $validated = $this->validateReservation($request, true);
         $room = Room::with('roomType')->findOrFail($validated['room_id']);
+        $this->ensureRoomIsAvailable($room, $validated['check_in'], $validated['check_out'], $reservation->id, $reservation->room_id);
 
         $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
         $total = $nights * $room->roomType->base_price;
 
         $reservation->update([
             ...$validated,
+            'guests' => $validated['guests'] ?? $reservation->guests,
+            'guest_phone' => $validated['guest_phone'] ?? $reservation->guest_phone,
+            'status' => $validated['status'] ?? $reservation->status,
             'total_amount' => $total,
         ]);
 
@@ -121,6 +134,23 @@ class ReservationController extends Controller
         $reservation->delete();
 
         return redirect()->route('reservations.index')->with('success', 'Reservation deleted successfully.');
+    }
+
+    public function updateStatus(Request $request, Reservation $reservation)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:confirmed,cancelled'],
+        ]);
+
+        $reservation->update([
+            'status' => $validated['status'],
+        ]);
+
+        if ($validated['status'] === 'cancelled') {
+            $reservation->room()->update(['status' => 'available']);
+        }
+
+        return redirect()->route('reservations.index')->with('success', 'Reservation status updated successfully.');
     }
 
     public function summary(Request $request)
@@ -138,18 +168,50 @@ class ReservationController extends Controller
     private function validateReservation(Request $request, bool $isUpdate = false): array
     {
         $statusRule = $isUpdate
-            ? ['required', 'in:pending,confirmed,checked_in,checked_out,cancelled']
-            : ['nullable', 'in:pending,confirmed,checked_in,checked_out,cancelled'];
+            ? ['nullable', 'in:pending,confirmed,checked_in,checked_out,cancelled']
+            : ['sometimes', 'in:pending,confirmed,checked_in,checked_out,cancelled'];
 
         return $request->validate([
             'room_id' => ['required', 'exists:rooms,id'],
             'guest_name' => ['required', 'string', 'max:120'],
             'guest_email' => ['required', 'email', 'max:120'],
+            'guest_phone' => ['nullable', 'string', 'max:30'],
             'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guests' => ['required', 'integer', 'min:1', 'max:12'],
+            'guests' => ['nullable', 'integer', 'min:1', 'max:12'],
             'special_requests' => ['nullable', 'string', 'max:1000'],
             'status' => $statusRule,
         ]);
+    }
+
+    private function ensureRoomIsAvailable(Room $room, string $checkIn, string $checkOut, ?int $ignoreReservationId = null, ?int $allowRoomId = null): void
+    {
+        if ($room->status !== 'available' && $room->id !== $allowRoomId) {
+            throw ValidationException::withMessages([
+                'room_id' => 'Selected room is not available right now.',
+            ]);
+        }
+
+        $hasConflict = Reservation::query()
+            ->where('room_id', $room->id)
+            ->when($ignoreReservationId, function ($query) use ($ignoreReservationId) {
+                $query->where('id', '!=', $ignoreReservationId);
+            })
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
+            ->where(function ($query) use ($checkIn, $checkOut) {
+                $query->whereBetween('check_in', [$checkIn, $checkOut])
+                    ->orWhereBetween('check_out', [$checkIn, $checkOut])
+                    ->orWhere(function ($nested) use ($checkIn, $checkOut) {
+                        $nested->where('check_in', '<=', $checkIn)
+                            ->where('check_out', '>=', $checkOut);
+                    });
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            throw ValidationException::withMessages([
+                'room_id' => 'Selected room is already booked for the chosen dates.',
+            ]);
+        }
     }
 }

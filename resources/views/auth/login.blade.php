@@ -12,42 +12,72 @@
     <style>
         body {
             font-family: 'Manrope', sans-serif;
-            background:
-                radial-gradient(circle at 14% 10%, rgba(185, 154, 97, 0.17), transparent 32%),
-                radial-gradient(circle at 86% 0%, rgba(185, 154, 97, 0.12), transparent 30%),
-                #0d1623;
+            background: linear-gradient(135deg, rgba(250, 248, 244, 0.75), rgba(245, 243, 239, 0.72)), url("{{ asset('images/login-bg.jpg') }}") center / cover no-repeat fixed;
+            min-height: 100vh;
         }
 
         .brand-font {
             font-family: 'Cormorant Garamond', serif;
         }
 
+        .brand-logo {
+            width: 108px;
+            height: 108px;
+            margin: 0 auto;
+            border-radius: 9999px;
+            border: 2px solid rgba(185, 154, 97, 0.45);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+            background: #fff;
+            object-fit: cover;
+            object-position: center;
+        }
+
         .login-card {
-            background: rgba(16, 25, 38, 0.72);
-            border: 1px solid rgba(185, 154, 97, 0.32);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(8px);
+            background: #ffffff;
+            border: 1px solid rgba(185, 154, 97, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            backdrop-filter: none;
         }
 
         .btn-gold {
             background: linear-gradient(135deg, #b99a61, #9e814d);
             transition: transform 0.16s ease, box-shadow 0.16s ease;
+            color: #fff;
         }
 
         .btn-gold:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(185, 154, 97, 0.28);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(185, 154, 97, 0.25);
+        }
+
+        .login-input {
+            border-radius: 12px;
+            border: 1px solid rgba(185, 154, 97, 0.15);
+            background: #ffffff;
+            color: #2c2c2c;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #b99a61;
+            box-shadow: 0 0 0 3px rgba(185, 154, 97, 0.1);
+        }
+
+        .login-input::placeholder {
+            color: #d1d5db;
         }
     </style>
 </head>
 
-<body class="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-    <div class="login-card w-full max-w-md rounded-2xl p-8 text-white">
-        <h1 class="brand-font text-center text-4xl font-semibold text-amber-50">StayEase Hotel</h1>
-        <p class="mt-1 text-center text-sm text-slate-300">Refined hospitality management access</p>
+<body class="flex min-h-screen items-center justify-center px-4">
+    <div class="login-card w-full max-w-md rounded-2xl p-8">
+        <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
+        <h1 class="brand-font mt-3 text-center text-4xl font-bold text-gray-900">StayEase Hotel</h1>
+        <p class="mt-2 text-center text-sm text-gray-600">Refined hospitality management access</p>
 
         @if ($errors->any())
-            <div class="mt-4 rounded-lg border border-red-300/30 bg-red-500/20 px-4 py-3 text-sm text-red-100">
+            <div class="mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {{ $errors->first() }}
             </div>
         @endif
@@ -55,29 +85,36 @@
         <form action="{{ route('login.attempt') }}" method="POST" class="mt-6 space-y-4">
             @csrf
             <div>
-                <label for="email" class="mb-1 block text-sm text-slate-200">Email or Username</label>
+                <label for="email" class="mb-2 block text-sm font-semibold text-gray-700">Email or Username</label>
                 <input id="email" name="email" type="text" value="{{ old('email', 'admin@stayease.local') }}" required
-                    class="w-full rounded-xl border border-slate-500/70 bg-slate-900/40 px-3 py-2.5 text-white placeholder:text-slate-400 focus:border-amber-300 focus:outline-none" />
+                    class="login-input w-full px-3 py-2.5" />
             </div>
 
             <div>
-                <label for="password" class="mb-1 block text-sm text-slate-200">Password</label>
+                <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">Password</label>
                 <input id="password" name="password" type="password" required
-                    class="w-full rounded-xl border border-slate-500/70 bg-slate-900/40 px-3 py-2.5 text-white placeholder:text-slate-400 focus:border-amber-300 focus:outline-none" />
+                    class="login-input w-full px-3 py-2.5" />
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-slate-300">
-                <input type="checkbox" name="remember" value="1"> Remember me
+            <label class="flex items-center gap-2 text-sm text-gray-600">
+                <input type="checkbox" name="remember" value="1" class="rounded border-gray-300"> Remember me
             </label>
 
-            <button type="submit" class="btn-gold w-full rounded-xl px-4 py-2.5 font-semibold text-white">
+            <button type="submit" class="btn-gold w-full rounded-xl px-4 py-2.5 font-semibold">
                 Sign in
             </button>
         </form>
 
-        <p class="mt-4 text-center text-xs text-slate-300">Admin: admin@stayease.local / 123</p>
-        <p class="mt-1 text-center text-xs text-slate-300">Staff: staff@stayease.local / 123</p>
-        <p class="mt-1 text-center text-xs text-slate-300">Customer: customer@stayease.local / 123</p>
+        <div class="mt-6 space-y-1 border-t border-gray-200 pt-4">
+            <p class="text-center text-xs text-gray-500">Admin: admin@stayease.local / 123</p>
+            <p class="text-center text-xs text-gray-500">Staff: staff@stayease.local / 123</p>
+            <p class="text-center text-xs text-gray-500">Customer: customer@stayease.local / 123</p>
+        </div>
+
+        <p class="mt-4 text-center text-sm text-gray-600">
+            New customer?
+            <a href="{{ route('register') }}" class="font-semibold text-amber-800 hover:text-amber-700">Create an account</a>
+        </p>
     </div>
 </body>
 

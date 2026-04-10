@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -11,6 +12,32 @@ class AuthController extends Controller
     public function showLogin()
     {
         return view('auth.login');
+    }
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:120', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role' => 'customer',
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('customer.home')->with('success', 'Account created successfully. Welcome to StayEase Hotel.');
     }
 
     public function login(Request $request)
@@ -49,7 +76,18 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        $user = Auth::user();
+
+        $redirectRoute = 'customer.home';
+        if ($user?->role === 'admin') {
+            $redirectRoute = 'dashboard';
+        } elseif ($user?->role === 'staff') {
+            $redirectRoute = 'staff.dashboard';
+        } elseif ($user?->role === 'customer') {
+            $redirectRoute = 'customer.history';
+        }
+
+        return redirect()->intended(route($redirectRoute));
     }
 
     public function logout(Request $request)

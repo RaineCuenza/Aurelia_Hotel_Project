@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\RoomType;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiEndpointsTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     public function test_rooms_index_returns_paginated_json(): void
     {

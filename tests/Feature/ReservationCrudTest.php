@@ -6,12 +6,12 @@ use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ReservationCrudTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     public function test_guest_is_redirected_to_login_for_protected_pages(): void
     {
@@ -54,7 +54,7 @@ class ReservationCrudTest extends TestCase
             'guest_name' => 'Lorraine Cuenza',
             'guest_email' => 'lorraine@example.com',
             'room_id' => $room->id,
-            'status' => 'pending',
+            'status' => 'confirmed',
         ]);
 
         $reservation = Reservation::first();
