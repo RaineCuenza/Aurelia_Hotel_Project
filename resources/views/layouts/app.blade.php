@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'StayEase Hotel' }}</title>
+    <title>{{ $title ?? 'Aurelia Hotel' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -267,6 +267,19 @@
             color: #374151;
             background: #fcfbf8;
             display: block;
+        }
+
+        .notify-item-label {
+            display: block;
+            font-weight: 600;
+        }
+
+        .notify-item-time {
+            display: block;
+            margin-top: 0.28rem;
+            font-size: 0.7rem;
+            color: rgba(75, 85, 99, 0.9);
+            letter-spacing: 0.01em;
         }
 
         .notify-item:hover {
@@ -718,8 +731,8 @@
                 @endphp
 
                 <a href="{{ $homeRoute }}" class="flex shrink-0 items-center gap-3 text-gray-900">
-                    <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
-                    <span class="brand-title brand-font font-semibold tracking-wide">StayEase Hotel</span>
+                    <img src="{{ asset('images/aurelia_logo.png') }}" alt="Aurelia Hotel logo" class="brand-logo" />
+                    <span class="brand-title brand-font font-semibold tracking-wide">Aurelia Hotel</span>
                 </a>
 
                 <div class="nav-shell">
@@ -764,9 +777,25 @@
                                     <div class="notify-list">
                                         @foreach (($navNotifications['items'] ?? []) as $note)
                                             @if ($note['href'])
-                                                <a href="{{ $note['href'] }}" class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</a>
+                                                <a href="{{ $note['href'] }}" class="notify-item {{ $note['tone'] }}">
+                                                    <span class="notify-item-label">{{ $note['label'] }}</span>
+                                                    <span class="notify-item-time" title="{{ $note['time_full'] ?? '' }}">
+                                                        {{ $note['time_human'] ?? '' }}
+                                                        @if(!empty($note['time_full']))
+                                                            • {{ $note['time_full'] }}
+                                                        @endif
+                                                    </span>
+                                                </a>
                                             @else
-                                                <p class="notify-item {{ $note['tone'] }}">{{ $note['label'] }}</p>
+                                                <p class="notify-item {{ $note['tone'] }}">
+                                                    <span class="notify-item-label">{{ $note['label'] }}</span>
+                                                    <span class="notify-item-time" title="{{ $note['time_full'] ?? '' }}">
+                                                        {{ $note['time_human'] ?? '' }}
+                                                        @if(!empty($note['time_full']))
+                                                            • {{ $note['time_full'] }}
+                                                        @endif
+                                                    </span>
+                                                </p>
                                             @endif
                                         @endforeach
                                     </div>
@@ -831,9 +860,9 @@
             <div class="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.3fr_0.9fr_0.9fr] lg:py-10">
                 <div>
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
+                        <img src="{{ asset('images/aurelia_logo.png') }}" alt="Aurelia Hotel logo" class="brand-logo" />
                         <div>
-                            <p class="brand-font text-3xl font-semibold leading-none text-stone-900">StayEase Hotel</p>
+                            <p class="brand-font text-3xl font-semibold leading-none text-stone-900">Aurelia Hotel</p>
                             <p class="mt-1 text-sm text-stone-600">Clean booking flow, premium stays, and responsive service.</p>
                         </div>
                     </div>
@@ -867,7 +896,7 @@
             <div class="luxury-divider mx-4 sm:mx-6"></div>
 
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 text-sm text-stone-500 sm:px-6 md:flex-row md:items-center md:justify-between">
-                <p>© {{ now()->year }} StayEase Hotel. All rights reserved.</p>
+                <p>© {{ now()->year }} Aurelia Hotel. All rights reserved.</p>
                 <p>Refined hospitality, from search to stay.</p>
             </div>
         </footer>
@@ -929,7 +958,7 @@
                 isLoaderVisible = false;
             };
 
-            window.StayEaseLoader = {
+            window.AureliaLoader = {
                 show: showLoader,
                 hide: hideLoader,
             };

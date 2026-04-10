@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +26,7 @@ class AuthController extends Controller
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:120', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
@@ -32,14 +34,17 @@ class AuthController extends Controller
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
+            'phone' => $validated['phone'],
             'password' => $validated['password'],
             'role' => 'customer',
         ]);
 
+        event(new Registered($user));
+
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('customer.home')->with('success', 'Account created successfully. Welcome to StayEase Hotel.');
+        return redirect()->route('verification.notice')->with('success', 'Account created. Please verify your email before booking.');
     }
 
     public function login(Request $request)
@@ -60,7 +65,7 @@ class AuthController extends Controller
         }
 
         if ($loginValue === 'admin') {
-            $loginValue = 'admin@stayease.local';
+            $loginValue = 'admin@aurelia.local';
         }
 
         $credentials = [
@@ -85,7 +90,11 @@ class AuthController extends Controller
             $redirectRoute = 'dashboard';
         } elseif ($user?->role === 'staff') {
             $redirectRoute = 'staff.dashboard';
-        } elseif ($user?->role === 'customer') {
+        } elseif ($user instanceof User && $user->role === 'customer') {
+            if (! $user->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice')->with('warning', 'Please verify your email to continue.');
+            }
+
             $redirectRoute = 'customer.home';
         }
 

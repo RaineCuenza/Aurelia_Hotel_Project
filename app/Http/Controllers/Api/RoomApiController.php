@@ -13,7 +13,7 @@ class RoomApiController extends Controller
     {
         $validated = $request->validate([
             'room_type_id' => ['nullable', 'integer', 'exists:room_types,id'],
-            'status' => ['nullable', 'in:available,occupied,maintenance'],
+            'status' => ['nullable', 'in:available,reserved,occupied,cleaning,maintenance'],
             'guests' => ['nullable', 'integer', 'min:1', 'max:12'],
             'sort' => ['nullable', 'in:room_number,max_guests,status,created_at'],
             'direction' => ['nullable', 'in:asc,desc'],

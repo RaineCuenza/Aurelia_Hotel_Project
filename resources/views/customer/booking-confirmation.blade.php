@@ -168,7 +168,7 @@
                 </div>
                 <div class="reminder-item">
                     <div class="reminder-dot"></div>
-                    <span><strong>Need Help?</strong> Contact our 24/7 support team at support@stayease.local or call +63 9XX XXX XXXX if you have any questions.</span>
+                    <span><strong>Need Help?</strong> Contact our 24/7 support team at support@aurelia.local or call +63 9XX XXX XXXX if you have any questions.</span>
                 </div>
             </div>
         </div>

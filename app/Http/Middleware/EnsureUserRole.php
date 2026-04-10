@@ -24,7 +24,7 @@ class EnsureUserRole
         return $next($request);
     }
 
-    private function homeRouteForRole(string $role): string
+    private function homeRouteForRole(?string $role): string
     {
         return match ($role) {
             'admin' => 'dashboard',

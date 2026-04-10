@@ -28,15 +28,26 @@
     <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         @forelse ($rooms as $room)
             <article class="surface p-4">
+                @php
+                    $canReserve = $room->status === 'available';
+                @endphp
                 <h2 class="text-xl font-bold text-slate-900">Room {{ $room->room_number }}</h2>
                 <p class="mt-2 text-sm text-slate-600">Type: {{ $room->roomType->name }}</p>
                 <p class="text-sm text-slate-600">Max Guests: {{ $room->max_guests }}</p>
                 <p class="text-sm capitalize text-slate-600">Status: {{ $room->status }}</p>
                 <p class="mt-3 text-lg font-bold text-amber-700">PHP {{ number_format($room->roomType->base_price, 2) }} / night</p>
-                <a href="{{ route('reservations.create', ['room_id' => $room->id]) }}"
-                    class="btn-primary mt-4 inline-block px-3 py-2 text-sm">
-                    Reserve This Room
-                </a>
+
+                @if ($canReserve)
+                    <a href="{{ route('reservations.create', ['room_id' => $room->id]) }}"
+                        class="btn-primary mt-4 inline-block px-3 py-2 text-sm">
+                        Reserve Room
+                    </a>
+                @else
+                    <span class="mt-4 inline-flex cursor-not-allowed items-center rounded-xl bg-slate-300 px-3 py-2 text-sm font-semibold text-slate-600 opacity-85"
+                        aria-disabled="true">
+                        Reservation Unavailable ({{ ucfirst($room->status) }})
+                    </span>
+                @endif
             </article>
         @empty
             <p class="text-slate-600">No rooms found for current filters.</p>

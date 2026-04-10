@@ -14,31 +14,37 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@stayease.local'],
+            ['email' => 'admin@aurelia.local'],
             [
                 'first_name' => 'Admin',
                 'last_name' => 'User',
+                'phone' => '+63 917 000 0001',
                 'role' => 'admin',
+                'email_verified_at' => now(),
                 'password' => Hash::make('123'),
             ]
         );
 
         User::updateOrCreate(
-            ['email' => 'staff@stayease.local'],
+            ['email' => 'staff@aurelia.local'],
             [
                 'first_name' => 'Staff',
                 'last_name' => 'User',
+                'phone' => '+63 917 000 0002',
                 'role' => 'staff',
+                'email_verified_at' => now(),
                 'password' => Hash::make('123'),
             ]
         );
 
         User::updateOrCreate(
-            ['email' => 'customer@stayease.local'],
+            ['email' => 'customer@aurelia.local'],
             [
                 'first_name' => 'Customer',
                 'last_name' => 'User',
+                'phone' => '+63 917 000 0003',
                 'role' => 'customer',
+                'email_verified_at' => now(),
                 'password' => Hash::make('123'),
             ]
         );

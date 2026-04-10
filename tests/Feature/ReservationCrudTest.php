@@ -22,7 +22,9 @@ class ReservationCrudTest extends TestCase
 
     public function test_authenticated_user_can_create_reservation(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'role' => 'admin',
+        ]);
 
         $roomType = RoomType::create([
             'name' => 'Standard',

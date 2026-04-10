@@ -325,7 +325,7 @@
                 <p class="text-xs uppercase tracking-[0.18em] text-amber-800">About Us</p>
                 <h2 class="section-title mt-2 text-4xl font-bold text-stone-900">Hospitality designed to feel calm, clear, and premium.</h2>
                 <p class="mt-3 text-sm leading-relaxed text-stone-600">
-                    StayEase Hotel is built around a simple idea: booking a stay should feel easy, refined, and trustworthy.
+                    Aurelia Hotel is built around a simple idea: booking a stay should feel easy, refined, and trustworthy.
                     We combine thoughtful room curation, responsive service, and a streamlined reservation flow so guests can
                     focus on the trip, not the process.
                 </p>

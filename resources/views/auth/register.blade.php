@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | StayEase Hotel</title>
+    <title>Register | Aurelia Hotel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -132,9 +132,9 @@
 
 <body class="flex min-h-screen items-center justify-center px-4">
     <div class="register-card w-full max-w-md rounded-2xl p-8">
-        <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
+        <img src="{{ asset('images/aurelia_logo.png') }}" alt="Aurelia Hotel logo" class="brand-logo" />
         <h1 class="brand-font mt-3 text-center text-4xl font-bold text-gray-900">Create Account</h1>
-        <p class="mt-2 text-center text-sm text-gray-600">Join StayEase and start booking luxury stays.</p>
+        <p class="mt-2 text-center text-sm text-gray-600">Join Aurelia and start booking luxury stays.</p>
 
         @if ($errors->any())
             <div class="mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -163,6 +163,11 @@
             <div>
                 <label class="mb-2 block text-sm font-semibold text-gray-700" for="email">Email</label>
                 <input id="email" name="email" type="email" value="{{ old('email') }}" required class="form-input w-full px-3 py-2.5">
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-gray-700" for="phone">Phone Number</label>
+                <input id="phone" name="phone" type="text" value="{{ old('phone') }}" required class="form-input w-full px-3 py-2.5" placeholder="e.g. +63 917 123 4567">
             </div>
 
             <div>

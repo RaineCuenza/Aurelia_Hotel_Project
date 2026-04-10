@@ -18,7 +18,7 @@ class CheckoutTestSeeder extends Seeder
     {
         // Create or get a test customer user
         $testCustomer = User::firstOrCreate(
-            ['email' => 'customer@stayease.local'],
+            ['email' => 'customer@aurelia.local'],
             [
                 'first_name' => 'Customer',
                 'last_name' => 'User',

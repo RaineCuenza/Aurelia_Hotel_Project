@@ -116,7 +116,7 @@ class StaffController extends Controller
     }
 
     /**
-     * Check-out a guest: Update reservation to completed and room to available
+     * Check-out a guest: Update reservation to completed and room to cleaning
      */
     public function checkOut(Request $request, Reservation $reservation)
     {
@@ -129,11 +129,25 @@ class StaffController extends Controller
             // Update reservation status
             $reservation->update(['status' => 'checked_out']);
 
-            // Mark room as available
-            $reservation->room->update(['status' => 'available']);
+            // Room requires housekeeping before becoming available again
+            $reservation->room->update(['status' => 'cleaning']);
         });
 
-        return redirect()->back()->with('success', "{$reservation->guest_name} has been checked out successfully.");
+        return redirect()->back()->with('success', "{$reservation->guest_name} has been checked out. Room moved to cleaning.");
+    }
+
+    /**
+     * Mark a cleaning room as available after housekeeping completes.
+     */
+    public function markRoomClean(Room $room)
+    {
+        if ($room->status !== 'cleaning') {
+            return redirect()->back()->with('error', 'Only rooms under cleaning can be marked as clean.');
+        }
+
+        $room->update(['status' => 'available']);
+
+        return redirect()->back()->with('success', "Room {$room->room_number} is now available for booking.");
     }
 
     /**

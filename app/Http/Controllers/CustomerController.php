@@ -48,8 +48,8 @@ class CustomerController extends Controller
                 $query->whereDoesntHave('reservations', function ($reservationQuery) use ($checkIn, $checkOut) {
                     $reservationQuery
                         ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
-                        ->where('check_in', '<', $checkOut)
-                        ->where('check_out', '>', $checkIn);
+                        ->whereDate('check_in', '<', $checkOut)
+                        ->whereDate('check_out', '>', $checkIn);
                 });
             })
             ->orderBy('room_number')
@@ -202,8 +202,8 @@ class CustomerController extends Controller
         $hasConflict = Reservation::query()
             ->where('room_id', $room->id)
             ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
-            ->where('check_in', '<', $checkOut)
-            ->where('check_out', '>', $checkIn)
+            ->whereDate('check_in', '<', $checkOut)
+            ->whereDate('check_out', '>', $checkIn)
             ->exists();
 
         if ($hasConflict) {

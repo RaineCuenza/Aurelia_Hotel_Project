@@ -6,6 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomSearchController;
 use App\Http\Controllers\StaffController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,8 +33,37 @@ Route::middleware('guest')->group(function () {
     })->name('login.page');
 });
 
+Route::get('/email/verify/{id}/{hash}', function (Request $request, int $id, string $hash) {
+    $user = User::findOrFail($id);
+
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403, 'Invalid verification link.');
+    }
+
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+    }
+
+    if (! Auth::check()) {
+        Auth::login($user);
+        $request->session()->regenerate();
+    }
+
+    return redirect()->route('customer.home')->with('success', 'Email verified successfully.');
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
 Route::middleware('auth')->group(function () {
-    Route::middleware('role:customer')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', 'A new verification link has been sent to your email address.');
+    })->middleware('throttle:6,1')->name('verification.send');
+
+    Route::middleware(['role:customer', 'verified'])->group(function () {
         Route::get('/book/{room}', [CustomerController::class, 'bookingForm'])
             ->whereNumber('room')
             ->name('customer.booking.form');
@@ -98,6 +130,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/staff/reservations/{reservation}/checkin', [StaffController::class, 'checkIn'])->name('staff.checkin');
         Route::post('/staff/reservations/{reservation}/checkout', [StaffController::class, 'checkOut'])->name('staff.checkout');
         Route::get('/staff/rooms', [StaffController::class, 'rooms'])->name('staff.rooms');
+        Route::post('/staff/rooms/{room}/mark-clean', [StaffController::class, 'markRoomClean'])->name('staff.rooms.mark-clean');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

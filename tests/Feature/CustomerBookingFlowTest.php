@@ -20,7 +20,9 @@ class CustomerBookingFlowTest extends TestCase
             'first_name' => 'Customer',
             'last_name' => 'User',
             'email' => 'customer.flow@example.com',
+            'phone' => '09170000010',
             'role' => 'customer',
+            'email_verified_at' => now(),
             'password' => 'secret123',
         ]);
 
@@ -58,7 +60,11 @@ class CustomerBookingFlowTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSee('Room 101');
+        $response->assertViewHas('rooms', function ($rooms) {
+            return $rooms->contains(function ($room) {
+                return (string) $room->room_number === '101';
+            });
+        });
     }
 
     public function test_customer_booking_rejects_overlapping_dates(): void
@@ -69,7 +75,9 @@ class CustomerBookingFlowTest extends TestCase
             'first_name' => 'Booking',
             'last_name' => 'Customer',
             'email' => 'booking.customer@example.com',
+            'phone' => '09170000011',
             'role' => 'customer',
+            'email_verified_at' => now(),
             'password' => 'secret123',
         ]);
 
@@ -109,7 +117,9 @@ class CustomerBookingFlowTest extends TestCase
             'first_name' => 'Booking',
             'last_name' => 'Customer 2',
             'email' => 'booking.customer2@example.com',
+            'phone' => '09170000012',
             'role' => 'customer',
+            'email_verified_at' => now(),
             'password' => 'secret123',
         ]);
 
@@ -127,6 +137,9 @@ class CustomerBookingFlowTest extends TestCase
             'total_amount' => 1500,
         ]);
 
+        // Explicitly keep the room open for a back-to-back booking window in this test.
+        $room->update(['status' => 'available']);
+
         $response = $this->actingAs($customer)->post(route('customer.booking.store', $room), [
             'guest_name' => 'Back To Back Guest',
             'guest_email' => 'backtoback@example.com',
@@ -137,6 +150,7 @@ class CustomerBookingFlowTest extends TestCase
             'special_requests' => null,
         ]);
 
+        $response->assertSessionHasNoErrors();
         $reservation = Reservation::where('guest_email', 'backtoback@example.com')->first();
 
         $this->assertNotNull($reservation);

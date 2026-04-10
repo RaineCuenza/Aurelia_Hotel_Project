@@ -18,16 +18,19 @@ class RoomSeeder extends Seeder
                 ['room_number' => '101', 'max_guests' => 2],
                 ['room_number' => '102', 'max_guests' => 2],
                 ['room_number' => '103', 'max_guests' => 2],
+                ['room_number' => '104', 'max_guests' => 2],
             ],
             'deluxe' => [
                 ['room_number' => '201', 'max_guests' => 3],
                 ['room_number' => '202', 'max_guests' => 3],
                 ['room_number' => '203', 'max_guests' => 3],
+                ['room_number' => '204', 'max_guests' => 3],
             ],
             'suite' => [
                 ['room_number' => '301', 'max_guests' => 5],
                 ['room_number' => '302', 'max_guests' => 5],
                 ['room_number' => '303', 'max_guests' => 5],
+                ['room_number' => '304', 'max_guests' => 5],
             ],
         ];
 

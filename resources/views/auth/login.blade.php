@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | StayEase Hotel</title>
+    <title>Login | Aurelia Hotel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -137,8 +137,8 @@
 
 <body class="flex min-h-screen items-center justify-center px-4">
     <div class="login-card w-full max-w-md rounded-2xl p-8">
-        <img src="{{ asset('images/aurelia_logo.png') }}" alt="StayEase Hotel logo" class="brand-logo" />
-        <h1 class="brand-font mt-3 text-center text-4xl font-bold text-gray-900">StayEase Hotel</h1>
+        <img src="{{ asset('images/aurelia_logo.png') }}" alt="Aurelia Hotel logo" class="brand-logo" />
+        <h1 class="brand-font mt-3 text-center text-4xl font-bold text-gray-900">Aurelia Hotel</h1>
         <p class="mt-2 text-center text-sm text-gray-600">Refined hospitality management access</p>
 
         @if ($errors->any())
@@ -151,7 +151,7 @@
             @csrf
             <div>
                 <label for="email" class="mb-2 block text-sm font-semibold text-gray-700">Email or Username</label>
-                <input id="email" name="email" type="text" value="{{ old('email', 'admin@stayease.local') }}" required
+                <input id="email" name="email" type="text" value="{{ old('email', 'admin@aurelia.local') }}" required
                     class="login-input w-full px-3 py-2.5" />
             </div>
 
@@ -171,9 +171,9 @@
         </form>
 
         <div class="mt-6 space-y-1 border-t border-gray-200 pt-4">
-            <p class="text-center text-xs text-gray-500">Admin: admin@stayease.local / 123</p>
-            <p class="text-center text-xs text-gray-500">Staff: staff@stayease.local / 123</p>
-            <p class="text-center text-xs text-gray-500">Customer: customer@stayease.local / 123</p>
+            <p class="text-center text-xs text-gray-500">Admin: admin@aurelia.local / 123</p>
+            <p class="text-center text-xs text-gray-500">Staff: staff@aurelia.local / 123</p>
+            <p class="text-center text-xs text-gray-500">Customer: customer@aurelia.local / 123</p>
         </div>
 
         <p class="mt-4 text-center text-sm text-gray-600">

@@ -167,7 +167,7 @@
         </div>
 
         <!-- Room Status Stats -->
-        <div class="grid gap-3 md:grid-cols-4 mb-6">
+        <div class="grid gap-3 md:grid-cols-5 mb-6">
             <div class="glass-panel stat-card">
                 <div>
                     <p class="stat-label">Total Rooms</p>

@@ -198,8 +198,8 @@ class ReservationController extends Controller
                 $query->where('id', '!=', $ignoreReservationId);
             })
             ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
-            ->where('check_in', '<', $checkOut)
-            ->where('check_out', '>', $checkIn)
+            ->whereDate('check_in', '<', $checkOut)
+            ->whereDate('check_out', '>', $checkIn)
             ->exists();
 
         if ($hasConflict) {

@@ -87,7 +87,7 @@
                     </div>
                     <div>
                         <label class="field-label" for="guest_phone">Phone</label>
-                        <input id="guest_phone" name="guest_phone" type="text" required class="field-input" value="{{ old('guest_phone') }}">
+                        <input id="guest_phone" name="guest_phone" type="text" required class="field-input" value="{{ old('guest_phone', auth()->user()->phone ?? '') }}">
                     </div>
                     <div>
                         <label class="field-label" for="guests">Guests</label>
