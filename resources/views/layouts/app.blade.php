@@ -30,6 +30,10 @@
                 linear-gradient(180deg, #fbf9f5 0%, var(--bg) 24%, #f7f3ee 100%);
         }
 
+        body.loading-active {
+            overflow: hidden;
+        }
+
         html {
             scroll-behavior: smooth;
             scroll-padding-top: 6.5rem;
@@ -413,6 +417,146 @@
             font-size: 2rem;
         }
 
+        .toast-stack {
+            position: fixed;
+            top: 5.5rem;
+            right: 1rem;
+            z-index: 80;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            width: min(92vw, 420px);
+        }
+
+        .toast-card {
+            border-radius: 14px;
+            border: 1px solid rgba(185, 154, 97, 0.3);
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: 0 14px 28px rgba(31, 24, 15, 0.16);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            padding: 0.85rem 0.9rem;
+            transform: translateY(-6px);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .toast-card.is-visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-card.toast-success {
+            border-color: rgba(16, 185, 129, 0.45);
+            background: #f3fff8;
+        }
+
+        .toast-card.toast-warning {
+            border-color: rgba(245, 158, 11, 0.42);
+            background: #fff9ec;
+        }
+
+        .toast-icon {
+            width: 1.3rem;
+            height: 1.3rem;
+            flex: 0 0 1.3rem;
+            margin-top: 0.08rem;
+        }
+
+        .toast-success .toast-icon {
+            color: #059669;
+        }
+
+        .toast-warning .toast-icon {
+            color: #b45309;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #2c2c2c;
+            padding-right: 0.15rem;
+        }
+
+        .toast-close {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .toast-close:hover {
+            color: #2c2c2c;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(247, 242, 233, 0.72);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .page-loader.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .loader-card {
+            width: min(92vw, 360px);
+            border-radius: 18px;
+            border: 1px solid rgba(185, 154, 97, 0.34);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 24px 40px rgba(42, 35, 24, 0.2);
+            padding: 1.15rem 1rem 1rem;
+            text-align: center;
+        }
+
+        .loader-ring {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto;
+            border: 4px solid rgba(185, 154, 97, 0.22);
+            border-top-color: var(--gold-deep);
+            border-radius: 9999px;
+            animation: loader-spin 0.9s linear infinite;
+        }
+
+        .loader-title {
+            margin-top: 0.8rem;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #2c2c2c;
+        }
+
+        .loader-message {
+            margin-top: 0.28rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        @keyframes loader-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 640px) {
             .brand-logo {
                 width: 50px;
@@ -425,6 +569,13 @@
 
             .nav-actions {
                 justify-content: flex-start;
+            }
+
+            .toast-stack {
+                top: 5.1rem;
+                right: 0.75rem;
+                left: 0.75rem;
+                width: auto;
             }
         }
 
@@ -445,6 +596,32 @@
 </head>
 
 <body class="min-h-screen">
+    @if (session('success') || session('warning'))
+        <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true">
+            @if (session('success'))
+                <div class="toast-card toast-success" role="status" data-toast data-auto-close="3000">
+                    <svg viewBox="0 0 24 24" class="toast-icon" aria-hidden="true">
+                        <path d="M20 7L9.5 17.5 4 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <p class="toast-message">{{ session('success') }}</p>
+                    <button type="button" class="toast-close" aria-label="Dismiss notification" data-toast-close>&times;</button>
+                </div>
+            @endif
+
+            @if (session('warning'))
+                <div class="toast-card toast-warning" role="status" data-toast data-auto-close="3000">
+                    <svg viewBox="0 0 24 24" class="toast-icon" aria-hidden="true">
+                        <path d="M12 3.8l9 16.2H3l9-16.2z" fill="none" stroke="currentColor" stroke-width="2"></path>
+                        <path d="M12 9.2v5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                        <circle cx="12" cy="17" r="1.1" fill="currentColor"></circle>
+                    </svg>
+                    <p class="toast-message">{{ session('warning') }}</p>
+                    <button type="button" class="toast-close" aria-label="Dismiss notification" data-toast-close>&times;</button>
+                </div>
+            @endif
+        </div>
+    @endif
+
     <div class="min-h-screen">
         <header class="top-nav-wrap sticky top-0 z-30 text-white">
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-6">
@@ -554,18 +731,6 @@
         </header>
 
         <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
-                @if (session('success'))
-                    <div class="mb-5 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-700">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session('warning'))
-                    <div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800">
-                        {{ session('warning') }}
-                    </div>
-                @endif
-
                 @if ($errors->any())
                     <div class="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700">
                         <p class="font-semibold">Please fix the following errors:</p>
@@ -626,8 +791,125 @@
         </footer>
     </div>
 
+    <div id="global-loader" class="page-loader" aria-hidden="true" aria-live="polite" aria-label="Loading">
+        <div class="loader-card" role="status">
+            <div class="loader-ring" aria-hidden="true"></div>
+            <p class="loader-title">Please wait</p>
+            <p id="global-loader-message" class="loader-message">Preparing your request...</p>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('global-loader');
+            const loaderMessage = document.getElementById('global-loader-message');
+            let isLoaderVisible = false;
+
+            const showLoader = (message) => {
+                if (!loader || isLoaderVisible) {
+                    return;
+                }
+
+                if (typeof message === 'string' && message.trim() !== '' && loaderMessage) {
+                    loaderMessage.textContent = message;
+                }
+
+                loader.classList.add('active');
+                loader.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('loading-active');
+                isLoaderVisible = true;
+            };
+
+            const hideLoader = () => {
+                if (!loader) {
+                    return;
+                }
+
+                loader.classList.remove('active');
+                loader.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('loading-active');
+                isLoaderVisible = false;
+            };
+
+            window.StayEaseLoader = {
+                show: showLoader,
+                hide: hideLoader,
+            };
+
+            document.querySelectorAll('form:not([data-no-loader])').forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    const submitter = event.submitter;
+
+                    if (submitter?.hasAttribute('data-no-loader')) {
+                        return;
+                    }
+
+                    const message = form.dataset.loaderMessage || 'Saving and redirecting...';
+                    showLoader(message);
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                const anchor = event.target.closest('a[href]');
+
+                if (!anchor || anchor.hasAttribute('data-no-loader') || anchor.hasAttribute('download')) {
+                    return;
+                }
+
+                const href = anchor.getAttribute('href') || '';
+
+                if (
+                    href === '' ||
+                    href.startsWith('#') ||
+                    href.startsWith('mailto:') ||
+                    href.startsWith('tel:') ||
+                    href.startsWith('javascript:') ||
+                    anchor.target === '_blank'
+                ) {
+                    return;
+                }
+
+                const nextUrl = new URL(anchor.href, window.location.href);
+                const currentUrl = new URL(window.location.href);
+
+                if (nextUrl.origin !== currentUrl.origin) {
+                    return;
+                }
+
+                const isAnchorOnlyJump = nextUrl.pathname === currentUrl.pathname && nextUrl.search === currentUrl.search && nextUrl.hash !== '';
+                if (isAnchorOnlyJump) {
+                    return;
+                }
+
+                const message = anchor.dataset.loaderMessage || 'Loading next page...';
+                showLoader(message);
+            });
+
+            window.addEventListener('pageshow', hideLoader);
+
+            const dismissToast = (toast) => {
+                if (!toast) {
+                    return;
+                }
+
+                toast.classList.remove('is-visible');
+                window.setTimeout(() => toast.remove(), 220);
+            };
+
+            document.querySelectorAll('[data-toast]').forEach((toast) => {
+                window.requestAnimationFrame(() => toast.classList.add('is-visible'));
+
+                const closeBtn = toast.querySelector('[data-toast-close]');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => dismissToast(toast));
+                }
+
+                const autoCloseMs = Number(toast.dataset.autoClose || '3000');
+                if (autoCloseMs > 0) {
+                    window.setTimeout(() => dismissToast(toast), autoCloseMs);
+                }
+            });
+
             const popouts = Array.from(document.querySelectorAll('.notify-menu, .profile-menu'));
 
             if (popouts.length === 0) {

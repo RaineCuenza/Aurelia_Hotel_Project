@@ -16,6 +16,10 @@
             min-height: 100vh;
         }
 
+        body.loading-active {
+            overflow: hidden;
+        }
+
         .brand-font {
             font-family: 'Cormorant Garamond', serif;
         }
@@ -61,6 +65,67 @@
         .btn-gold:hover {
             transform: translateY(-1px);
             box-shadow: 0 8px 20px rgba(185, 154, 97, 0.25);
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(247, 242, 233, 0.72);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .page-loader.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .loader-card {
+            width: min(92vw, 360px);
+            border-radius: 18px;
+            border: 1px solid rgba(185, 154, 97, 0.34);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 24px 40px rgba(42, 35, 24, 0.2);
+            padding: 1.15rem 1rem 1rem;
+            text-align: center;
+        }
+
+        .loader-ring {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto;
+            border: 4px solid rgba(185, 154, 97, 0.22);
+            border-top-color: #9e814d;
+            border-radius: 9999px;
+            animation: loader-spin 0.9s linear infinite;
+        }
+
+        .loader-title {
+            margin-top: 0.8rem;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #2c2c2c;
+        }
+
+        .loader-message {
+            margin-top: 0.28rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        @keyframes loader-spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -118,6 +183,73 @@
             <a href="{{ route('login') }}" class="font-semibold text-amber-800 hover:text-amber-700">Sign in</a>
         </p>
     </div>
+
+    <div id="global-loader" class="page-loader" aria-hidden="true" aria-live="polite" aria-label="Loading">
+        <div class="loader-card" role="status">
+            <div class="loader-ring" aria-hidden="true"></div>
+            <p class="loader-title">Please wait</p>
+            <p id="global-loader-message" class="loader-message">Preparing your request...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('global-loader');
+            const loaderMessage = document.getElementById('global-loader-message');
+            let isLoaderVisible = false;
+
+            const showLoader = (message) => {
+                if (!loader || isLoaderVisible) {
+                    return;
+                }
+
+                if (typeof message === 'string' && message.trim() !== '' && loaderMessage) {
+                    loaderMessage.textContent = message;
+                }
+
+                loader.classList.add('active');
+                loader.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('loading-active');
+                isLoaderVisible = true;
+            };
+
+            const hideLoader = () => {
+                if (!loader) {
+                    return;
+                }
+
+                loader.classList.remove('active');
+                loader.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('loading-active');
+                isLoaderVisible = false;
+            };
+
+            document.querySelectorAll('form:not([data-no-loader])').forEach((form) => {
+                form.addEventListener('submit', () => {
+                    const message = form.dataset.loaderMessage || 'Creating your account...';
+                    showLoader(message);
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                const anchor = event.target.closest('a[href]');
+
+                if (!anchor || anchor.hasAttribute('data-no-loader') || anchor.target === '_blank') {
+                    return;
+                }
+
+                const href = anchor.getAttribute('href') || '';
+                if (href === '' || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) {
+                    return;
+                }
+
+                const message = anchor.dataset.loaderMessage || 'Loading next page...';
+                showLoader(message);
+            });
+
+            window.addEventListener('pageshow', hideLoader);
+        });
+    </script>
 </body>
 
 </html>
