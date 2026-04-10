@@ -13,9 +13,23 @@ class EnsureUserRole
         $user = $request->user();
 
         if (! $user || ! in_array($user->role, $roles, true)) {
-            abort(403, 'You are not allowed to access this area.');
+            if (! $user) {
+                return redirect()->route('login')->with('warning', 'Please sign in to continue.');
+            }
+
+            return redirect()->route($this->homeRouteForRole($user->role))
+                ->with('warning', 'Your account does not have access to that section. We redirected you to the right area.');
         }
 
         return $next($request);
+    }
+
+    private function homeRouteForRole(string $role): string
+    {
+        return match ($role) {
+            'admin' => 'dashboard',
+            'staff' => 'staff.dashboard',
+            default => 'customer.home',
+        };
     }
 }

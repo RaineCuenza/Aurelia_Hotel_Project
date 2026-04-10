@@ -8,6 +8,7 @@ use App\Models\Room;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class ReservationApiController extends Controller
 {
@@ -62,6 +63,8 @@ class ReservationApiController extends Controller
         $payload = $this->validatePayload($request);
         $room = Room::with('roomType')->findOrFail($payload['room_id']);
 
+        $this->ensureRoomIsAvailable($payload['room_id'], $payload['check_in'], $payload['check_out']);
+
         if ($payload['guests'] > $room->max_guests) {
             return response()->json([
                 'message' => 'Guests exceed the room capacity.',
@@ -89,6 +92,8 @@ class ReservationApiController extends Controller
     {
         $payload = $this->validatePayload($request, true);
         $room = Room::with('roomType')->findOrFail($payload['room_id']);
+
+        $this->ensureRoomIsAvailable($payload['room_id'], $payload['check_in'], $payload['check_out'], $reservation->id);
 
         if ($payload['guests'] > $room->max_guests) {
             return response()->json([
@@ -138,5 +143,24 @@ class ReservationApiController extends Controller
             'special_requests' => ['nullable', 'string', 'max:1000'],
             'status' => $statusRule,
         ]);
+    }
+
+    private function ensureRoomIsAvailable(int $roomId, string $checkIn, string $checkOut, ?int $ignoreReservationId = null): void
+    {
+        $hasConflict = Reservation::query()
+            ->where('room_id', $roomId)
+            ->when($ignoreReservationId, function ($query) use ($ignoreReservationId) {
+                $query->where('id', '!=', $ignoreReservationId);
+            })
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
+            ->where('check_in', '<', $checkOut)
+            ->where('check_out', '>', $checkIn)
+            ->exists();
+
+        if ($hasConflict) {
+            throw ValidationException::withMessages([
+                'room_id' => 'Selected room is already booked for the chosen dates.',
+            ]);
+        }
     }
 }

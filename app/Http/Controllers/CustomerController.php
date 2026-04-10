@@ -48,16 +48,8 @@ class CustomerController extends Controller
                 $query->whereDoesntHave('reservations', function ($reservationQuery) use ($checkIn, $checkOut) {
                     $reservationQuery
                         ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
-                        ->where(function ($rangeQuery) use ($checkIn, $checkOut) {
-                            $rangeQuery
-                                ->whereBetween('check_in', [$checkIn, $checkOut])
-                                ->orWhereBetween('check_out', [$checkIn, $checkOut])
-                                ->orWhere(function ($containsQuery) use ($checkIn, $checkOut) {
-                                    $containsQuery
-                                        ->where('check_in', '<=', $checkIn)
-                                        ->where('check_out', '>=', $checkOut);
-                                });
-                        });
+                        ->where('check_in', '<', $checkOut)
+                        ->where('check_out', '>', $checkIn);
                 });
             })
             ->orderBy('room_number')
@@ -196,14 +188,8 @@ class CustomerController extends Controller
         $hasConflict = Reservation::query()
             ->where('room_id', $room->id)
             ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
-            ->where(function ($query) use ($checkIn, $checkOut) {
-                $query->whereBetween('check_in', [$checkIn, $checkOut])
-                    ->orWhereBetween('check_out', [$checkIn, $checkOut])
-                    ->orWhere(function ($nested) use ($checkIn, $checkOut) {
-                        $nested->where('check_in', '<=', $checkIn)
-                            ->where('check_out', '>=', $checkOut);
-                    });
-            })
+            ->where('check_in', '<', $checkOut)
+            ->where('check_out', '>', $checkIn)
             ->exists();
 
         if ($hasConflict) {

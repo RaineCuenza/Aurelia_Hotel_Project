@@ -560,6 +560,12 @@
                     </div>
                 @endif
 
+                @if (session('warning'))
+                    <div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800">
+                        {{ session('warning') }}
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700">
                         <p class="font-semibold">Please fix the following errors:</p>

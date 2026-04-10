@@ -84,7 +84,7 @@ class AuthController extends Controller
         } elseif ($user?->role === 'staff') {
             $redirectRoute = 'staff.dashboard';
         } elseif ($user?->role === 'customer') {
-            $redirectRoute = 'customer.history';
+            $redirectRoute = 'customer.home';
         }
 
         return redirect()->intended(route($redirectRoute));
