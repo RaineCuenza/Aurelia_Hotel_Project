@@ -71,12 +71,15 @@ class ReservationController extends Controller
                 'guest_phone' => $validated['guest_phone'] ?? null,
                 'total_amount' => $total,
                 'status' => 'confirmed',
+                'payment_status' => 'paid',
+                'payment_method' => 'manual_frontdesk',
+                'payment_paid_at' => now(),
             ]);
 
             $room->update(['status' => 'reserved']);
         });
 
-        return redirect()->route('reservations.index')->with('success', 'Reservation created successfully.');
+        return redirect()->route('reservations.index')->with('success', 'Booking created successfully.');
     }
 
     /**
@@ -123,7 +126,7 @@ class ReservationController extends Controller
             'total_amount' => $total,
         ]);
 
-        return redirect()->route('reservations.index')->with('success', 'Reservation updated successfully.');
+        return redirect()->route('reservations.index')->with('success', 'Booking updated successfully.');
     }
 
     /**
@@ -133,7 +136,7 @@ class ReservationController extends Controller
     {
         $reservation->delete();
 
-        return redirect()->route('reservations.index')->with('success', 'Reservation deleted successfully.');
+        return redirect()->route('reservations.index')->with('success', 'Booking deleted successfully.');
     }
 
     public function updateStatus(Request $request, Reservation $reservation)
@@ -150,7 +153,7 @@ class ReservationController extends Controller
             $reservation->room()->update(['status' => 'available']);
         }
 
-        return redirect()->route('reservations.index')->with('success', 'Reservation status updated successfully.');
+        return redirect()->route('reservations.index')->with('success', 'Booking status updated successfully.');
     }
 
     public function summary(Request $request)

@@ -110,10 +110,10 @@
     <div class="manage-shell p-5 sm:p-7">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="section-title text-4xl font-bold text-gray-900">Manage Reservations</h1>
+                <h1 class="section-title text-4xl font-bold text-gray-900">Manage Bookings</h1>
                 <p class="mt-2 text-sm text-gray-600">Review, approve, cancel, and edit live bookings.</p>
             </div>
-            <a href="{{ route('reservations.create') }}" class="btn-primary px-4 py-2.5">New Reservation</a>
+            <a href="{{ route('reservations.create') }}" class="btn-primary px-4 py-2.5">New Booking</a>
         </div>
 
         <form method="GET" action="{{ route('reservations.index') }}" class="glass-panel mt-6 grid gap-3 p-4 md:grid-cols-3">
@@ -188,7 +188,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-5 text-gray-400">No reservations found.</td>
+                            <td colspan="6" class="py-5 text-gray-400">No bookings found.</td>
                         </tr>
                     @endforelse
                 </tbody>

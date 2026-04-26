@@ -70,9 +70,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/book/{room}', [CustomerController::class, 'book'])
             ->whereNumber('room')
             ->name('customer.booking.store');
+        Route::get('/booking/{reservation}/payment', [CustomerController::class, 'paymentPage'])
+            ->name('customer.booking.payment');
+        Route::post('/booking/{reservation}/payment', [CustomerController::class, 'processMockPayment'])
+            ->name('customer.booking.payment.process');
         Route::get('/booking/confirmation/{reservation}', [CustomerController::class, 'bookingConfirmation'])
             ->name('customer.booking.confirmation');
-        Route::get('/my-reservations', [CustomerController::class, 'history'])->name('customer.history');
+        Route::get('/my-bookings', [CustomerController::class, 'history'])->name('customer.history');
+        Route::get('/my-reservations', function () {
+            return redirect()->route('customer.history');
+        })->name('customer.history.legacy');
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -121,6 +128,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/reserve.php', function () {
         return redirect()->route('reservations.create', request()->query());
     })->middleware('role:admin,staff')->name('reserve.page');
+
+    Route::get('/book.php', function () {
+        return redirect()->route('reservations.create', request()->query());
+    })->middleware('role:admin,staff')->name('book.page');
 
     // Staff Routes
     Route::middleware('role:staff,admin')->group(function () {

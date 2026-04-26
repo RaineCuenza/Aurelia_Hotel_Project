@@ -106,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
             } elseif ($user->role === 'staff') {
                 $checkinsToday = Reservation::whereDate('check_in', $today)
                     ->where('status', 'confirmed')
+                    ->where('payment_status', 'paid')
                     ->count();
                 $checkoutsToday = Reservation::whereDate('check_out', $today)
                     ->where('status', 'checked_in')
@@ -119,6 +120,7 @@ class AppServiceProvider extends ServiceProvider
                         'info',
                         Reservation::whereDate('check_in', $today)
                             ->where('status', 'confirmed')
+                            ->where('payment_status', 'paid')
                             ->latest('updated_at')
                             ->value('updated_at')
                     );

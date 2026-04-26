@@ -85,7 +85,7 @@ class ReservationApiController extends Controller
         $reservation->load(['room.roomType', 'user']);
 
         return response()->json([
-            'message' => 'Reservation created successfully.',
+            'message' => 'Booking created successfully.',
             'data' => $reservation,
         ], 201);
     }
@@ -116,7 +116,7 @@ class ReservationApiController extends Controller
         $reservation->load(['room.roomType', 'user']);
 
         return response()->json([
-            'message' => 'Reservation updated successfully.',
+            'message' => 'Booking updated successfully.',
             'data' => $reservation,
         ]);
     }
@@ -126,7 +126,7 @@ class ReservationApiController extends Controller
         $reservation->delete();
 
         return response()->json([
-            'message' => 'Reservation deleted successfully.',
+            'message' => 'Booking deleted successfully.',
         ]);
     }
 

@@ -13,14 +13,14 @@ class DashboardController extends Controller
         $today = Carbon::today();
         $startDate = $today->copy()->subDays(6);
 
-        $activeStatuses = ['pending', 'confirmed', 'checked_in'];
-        $revenueStatuses = ['confirmed', 'checked_in', 'checked_out'];
+        $activestatus = ['pending', 'confirmed', 'checked_in'];
+        $revenuestatus = ['confirmed', 'checked_in', 'checked_out'];
 
         $metrics = [
             'total_rooms' => Room::count(),
             'available_rooms' => Room::where('status', 'available')->count(),
-            'active_bookings' => Reservation::whereIn('status', $activeStatuses)->count(),
-            'total_revenue' => Reservation::whereIn('status', $revenueStatuses)->sum('total_amount'),
+            'active_bookings' => Reservation::whereIn('status', $activestatus)->count(),
+            'total_revenue' => Reservation::whereIn('status', $revenuestatus)->sum('total_amount'),
         ];
 
         $dailyBookingData = Reservation::query()

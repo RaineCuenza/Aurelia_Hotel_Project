@@ -36,7 +36,7 @@
     </style>
 
     <div class="history-shell">
-        <h1 class="section-title text-4xl font-bold text-stone-900">My Reservations</h1>
+        <h1 class="section-title text-4xl font-bold text-stone-900">My Bookings</h1>
 
         <section class="mt-6">
             <h2 class="section-title text-3xl font-semibold text-stone-900">Active Stay</h2>

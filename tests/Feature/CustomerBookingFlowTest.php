@@ -154,7 +154,9 @@ class CustomerBookingFlowTest extends TestCase
         $reservation = Reservation::where('guest_email', 'backtoback@example.com')->first();
 
         $this->assertNotNull($reservation);
-        $response->assertRedirect(route('customer.booking.confirmation', $reservation));
+        $response->assertRedirect(route('customer.booking.payment', $reservation));
+        $this->assertSame('pending', $reservation->status);
+        $this->assertSame('pending', $reservation->payment_status);
         $this->assertEquals(2, Reservation::count());
         $this->assertSame('reserved', $room->fresh()->status);
     }
@@ -174,6 +176,47 @@ class CustomerBookingFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('Room 203');
+    }
+
+    public function test_mock_payment_success_confirms_booking(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-04-10 10:00:00'));
+
+        $customer = User::create([
+            'first_name' => 'Paying',
+            'last_name' => 'Customer',
+            'email' => 'paying.customer@example.com',
+            'phone' => '09170000015',
+            'role' => 'customer',
+            'email_verified_at' => now(),
+            'password' => 'secret123',
+        ]);
+
+        $room = $this->createAvailableRoom('205');
+
+        $bookingResponse = $this->actingAs($customer)->post(route('customer.booking.store', $room), [
+            'guest_name' => 'Paying Customer',
+            'guest_email' => 'paying.customer@example.com',
+            'guest_phone' => '09170000015',
+            'check_in' => '2026-04-12',
+            'check_out' => '2026-04-13',
+            'guests' => 2,
+            'special_requests' => null,
+        ]);
+
+        $reservation = Reservation::where('guest_email', 'paying.customer@example.com')->first();
+
+        $this->assertNotNull($reservation);
+        $bookingResponse->assertRedirect(route('customer.booking.payment', $reservation));
+
+        $paymentResponse = $this->actingAs($customer)->post(route('customer.booking.payment.process', $reservation), [
+            'outcome' => 'success',
+        ]);
+
+        $paymentResponse->assertRedirect(route('customer.booking.confirmation', $reservation));
+        $this->assertSame('confirmed', $reservation->fresh()->status);
+        $this->assertSame('paid', $reservation->fresh()->payment_status);
+        $this->assertSame('reserved', $room->fresh()->status);
     }
 
     private function createAvailableRoom(string $roomNumber): Room

@@ -26,10 +26,17 @@
             justify-content: center;
             gap: 0.6rem;
             border-radius: 14px;
-            background: linear-gradient(135deg, #10b981, #059669);
             padding: 0.9rem 1.2rem;
             margin: -1.5rem -1.5rem 1.5rem;
             width: calc(100% + 3rem);
+        }
+
+        .confirmed-badge.is-confirmed {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .confirmed-badge.is-pending {
+            background: linear-gradient(135deg, #d97706, #b45309);
         }
 
         .confirmed-badge svg {
@@ -95,11 +102,17 @@
     </style>
 
     <div class="confirm-shell">
-        <div class="confirmed-badge">
+        @php
+            $isPaid = $reservation->payment_status === 'paid';
+        @endphp
+
+        <div class="confirmed-badge {{ $isPaid ? 'is-confirmed' : 'is-pending' }}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span class="confirmed-badge-text">Booking Confirmed — Your Room is Reserved</span>
+            <span class="confirmed-badge-text">
+                {{ $isPaid ? 'Booking Confirmed - Your Room is Booked' : 'Booking Pending - Waiting for Payment' }}
+            </span>
         </div>
 
         <div class="flex flex-wrap items-end justify-between gap-3">
@@ -109,6 +122,14 @@
             </div>
             <a href="{{ route('customer.history') }}" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50">View My Bookings</a>
         </div>
+
+        @if (! $isPaid)
+            <div class="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Payment is still pending for this booking.
+                <a href="{{ route('customer.booking.payment', $reservation) }}" class="font-semibold underline">Continue payment</a>
+                before the payment window expires.
+            </div>
+        @endif
 
         <div class="card mt-5 grid gap-4 md:grid-cols-2">
             <div>
@@ -130,6 +151,10 @@
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Status</p>
                 <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $reservation->status) }}</p>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Payment Status</p>
+                <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $reservation->payment_status ?? 'unpaid') }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Total Price</p>

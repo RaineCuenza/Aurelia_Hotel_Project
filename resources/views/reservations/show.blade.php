@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="section-title text-4xl font-semibold text-slate-900">Reservation Details</h1>
+    <h1 class="section-title text-4xl font-semibold text-slate-900">Booking Details</h1>
 
     <div class="surface mt-6 p-5">
         <div class="grid gap-4 md:grid-cols-2">

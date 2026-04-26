@@ -116,7 +116,7 @@
     <div class="manage-shell p-5 sm:p-7">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <h1 class="section-title text-4xl font-bold text-gray-900">Staff Reservations</h1>
+                <h1 class="section-title text-4xl font-bold text-gray-900">Staff Bookings</h1>
                 <p class="mt-2 text-sm text-gray-600">Manage guest check-ins and check-outs.</p>
             </div>
         </div>
@@ -127,7 +127,7 @@
                 class="field-input">
 
             <select name="status" class="field-input">
-                <option value="">All statuses</option>
+                <option value="">All status</option>
                 <option value="pending" @selected(request('status') === 'pending')>Pending</option>
                 <option value="confirmed" @selected(request('status') === 'confirmed')>Confirmed</option>
                 <option value="checked_in" @selected(request('status') === 'checked_in')>Checked In</option>
@@ -139,7 +139,7 @@
             </button>
         </form>
 
-        <!-- Reservations Table -->
+        <!-- Bookings Table -->
         <div class="glass-panel overflow-x-auto p-4">
             <table class="reservations-table w-full text-left text-sm">
                 <thead>
@@ -174,11 +174,13 @@
                             </td>
                             <td class="py-3 pr-3">
                                 <div class="flex flex-wrap gap-2">
-                                    @if ($reservation->status === 'confirmed')
+                                    @if ($reservation->status === 'confirmed' && $reservation->payment_status === 'paid')
                                         <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                                             @csrf
                                             <button class="action-link btn-checkin">Check-in</button>
                                         </form>
+                                    @elseif ($reservation->status === 'confirmed' && $reservation->payment_status !== 'paid')
+                                        <span class="action-link" style="background: #fee2e2; color: #991b1b;">Awaiting Payment</span>
                                     @endif
 
                                     @if ($reservation->status === 'checked_in')
@@ -194,7 +196,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-5 text-center text-gray-400">No reservations found.</td>
+                            <td colspan="5" class="py-5 text-center text-gray-400">No bookings found.</td>
                         </tr>
                     @endforelse
                 </tbody>

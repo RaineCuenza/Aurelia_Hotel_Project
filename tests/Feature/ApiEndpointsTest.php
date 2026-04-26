@@ -56,7 +56,7 @@ class ApiEndpointsTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('message', 'Reservation created successfully.')
+            ->assertJsonPath('message', 'Booking created successfully.')
             ->assertJsonPath('data.guest_name', 'API Guest')
             ->assertJsonPath('data.total_amount', '3000.00');
 
@@ -95,7 +95,7 @@ class ApiEndpointsTest extends TestCase
         ]);
 
         $updateResponse->assertOk()
-            ->assertJsonPath('message', 'Reservation updated successfully.')
+            ->assertJsonPath('message', 'Booking updated successfully.')
             ->assertJsonPath('data.guest_name', 'Updated Guest')
             ->assertJsonPath('data.status', 'confirmed');
 
@@ -108,7 +108,7 @@ class ApiEndpointsTest extends TestCase
         $deleteResponse = $this->deleteJson('/api/reservations/'.$reservation->id);
 
         $deleteResponse->assertOk()
-            ->assertJsonPath('message', 'Reservation deleted successfully.');
+            ->assertJsonPath('message', 'Booking deleted successfully.');
 
         $this->assertDatabaseMissing('reservations', [
             'id' => $reservation->id,

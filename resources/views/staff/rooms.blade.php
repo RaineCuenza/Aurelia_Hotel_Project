@@ -148,7 +148,7 @@
             </div>
 
             <div class="glass-panel stat-card">
-                <p class="stat-label">Reserved</p>
+                <p class="stat-label">Booked</p>
                 <p class="stat-value value-reserved">{{ $stats['reserved'] }}</p>
             </div>
 
@@ -182,7 +182,7 @@
 
                         @if (in_array($room->status, ['reserved', 'occupied'], true) && $room->reservations->count() > 0)
                             <div class="mt-3 pt-3 border-t border-current border-opacity-20">
-                                <p class="text-xs text-gray-600 font-semibold">Current Reservation:</p>
+                                <p class="text-xs text-gray-600 font-semibold">Current Booking:</p>
                                 <p class="text-sm font-medium text-gray-900">{{ $room->reservations->first()->guest_name }}</p>
                             </div>
                         @endif

@@ -166,7 +166,7 @@
 
             <div class="glass-panel p-5 sm:p-6">
                 <h2 class="section-title text-3xl font-bold text-gray-900">Quick Snapshot</h2>
-                <p class="mt-2 text-sm text-gray-600">Operational status derived from your live reservation and room data.</p>
+                <p class="mt-2 text-sm text-gray-600">Operational status derived from your live booking and room data.</p>
 
                 <div class="mt-5 space-y-3 text-sm">
                     <div class="quick-snapshot-item flex items-center justify-between px-4 py-3">
@@ -186,7 +186,7 @@
         </div>
 
         <div class="glass-panel mt-6 p-5 sm:p-6">
-            <h2 class="section-title text-3xl font-bold text-gray-900">Recent Reservations</h2>
+            <h2 class="section-title text-3xl font-bold text-gray-900">Recent Bookings</h2>
             <p class="mt-1 text-sm text-gray-600">Latest guest bookings and status flow.</p>
 
             <div class="mt-4 overflow-x-auto">
@@ -213,7 +213,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-5 text-gray-400">No reservations yet.</td>
+                                <td colspan="5" class="py-5 text-gray-400">No bookings yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

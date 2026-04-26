@@ -196,7 +196,7 @@
                 <p class="text-xs uppercase tracking-[0.22em] text-amber-800/90">Aurelia Hotel</p>
                 <h1 class="section-title mt-2 text-5xl font-bold text-stone-900">Luxury Stay, Seamless Booking</h1>
                 <p class="mt-3 text-sm leading-relaxed text-stone-600">
-                    Reserve handcrafted rooms and suites designed for comfort and calm. Search availability in seconds and confirm your stay with confidence.
+                    Book handcrafted rooms and suites designed for comfort and calm. Search availability in seconds and confirm your stay with confidence.
                 </p>
 
                 <form method="GET" action="{{ route('customer.search') }}" class="booking-card grid gap-3 md:grid-cols-2">
@@ -233,7 +233,7 @@
             <article class="metric-box">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Fast Booking</p>
                 <p class="mt-1 text-3xl font-bold text-amber-800">2 min</p>
-                <p class="text-xs text-stone-600">Average checkout time</p>
+                <p class="text-xs text-stone-600">Average booking completion time</p>
             </article>
             <article class="metric-box">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Premium Rooms</p>
@@ -272,7 +272,7 @@
     <section class="highlight-shell">
         <div class="mb-3">
             <h2 class="section-title text-3xl font-bold text-stone-900">Why Guests Choose Aurelia</h2>
-            <p class="mt-1 text-sm text-stone-600">A complete stay experience, from reservation to check-out.</p>
+            <p class="mt-1 text-sm text-stone-600">A complete stay experience, from booking to check-out.</p>
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
@@ -284,7 +284,7 @@
             <article class="highlight-card">
                 <p class="text-xs uppercase tracking-[0.16em] text-amber-800">Smart Convenience</p>
                 <h3 class="section-title mt-1 text-2xl font-semibold text-stone-900">Seamless Process</h3>
-                <p class="mt-2 text-sm text-stone-600">Search by date, compare room types, and complete your reservation with instant confirmation.</p>
+                <p class="mt-2 text-sm text-stone-600">Search by date, compare room types, and complete your booking with instant confirmation.</p>
             </article>
             <article class="highlight-card">
                 <p class="text-xs uppercase tracking-[0.16em] text-amber-800">Reliable Service</p>
@@ -314,7 +314,7 @@
             <article class="step-card">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Step 3</p>
                 <h3 class="section-title mt-1 text-2xl font-semibold text-stone-900">Confirm Booking</h3>
-                <p class="mt-2 text-sm text-stone-600">Complete guest details, review total cost, and receive your reservation confirmation.</p>
+                <p class="mt-2 text-sm text-stone-600">Complete guest details, review total cost, and receive your booking confirmation.</p>
             </article>
         </div>
     </section>
@@ -326,7 +326,7 @@
                 <h2 class="section-title mt-2 text-4xl font-bold text-stone-900">Hospitality designed to feel calm, clear, and premium.</h2>
                 <p class="mt-3 text-sm leading-relaxed text-stone-600">
                     Aurelia Hotel is built around a simple idea: booking a stay should feel easy, refined, and trustworthy.
-                    We combine thoughtful room curation, responsive service, and a streamlined reservation flow so guests can
+                    We combine thoughtful room curation, responsive service, and a streamlined booking flow so guests can
                     focus on the trip, not the process.
                 </p>
                 <p class="mt-3 text-sm leading-relaxed text-stone-600">
@@ -349,7 +349,7 @@
                 <article class="highlight-card">
                     <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Experience</p>
                     <p class="mt-1 text-2xl font-bold text-amber-800">Efficient</p>
-                    <p class="mt-1 text-sm text-stone-600">Fast room discovery and simple reservation steps.</p>
+                    <p class="mt-1 text-sm text-stone-600">Fast room discovery and simple booking steps.</p>
                 </article>
                 <article class="highlight-card">
                     <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Support</p>

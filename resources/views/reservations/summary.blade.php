@@ -5,7 +5,7 @@
 
     @if ($reservation)
         <div class="surface mt-6 p-5">
-            <p class="text-slate-600">Latest reservation:</p>
+            <p class="text-slate-600">Latest booking:</p>
             <h2 class="mt-1 text-2xl font-bold">{{ $reservation->guest_name }}</h2>
             <p class="mt-2">Room {{ $reservation->room->room_number }} ({{ $reservation->room->roomType->name }})</p>
             <p>Stay: {{ $reservation->check_in->format('M d, Y') }} - {{ $reservation->check_out->format('M d, Y') }} ({{ $reservation->nights }} nights)</p>
@@ -14,8 +14,8 @@
         </div>
     @else
         <div class="surface mt-6 p-5">
-            <p class="text-slate-600">No reservation found yet.</p>
-            <a href="{{ route('reservations.create') }}" class="btn-primary mt-4 inline-block px-4 py-2.5">Create Reservation</a>
+            <p class="text-slate-600">No booking found yet.</p>
+            <a href="{{ route('reservations.create') }}" class="btn-primary mt-4 inline-block px-4 py-2.5">Create Booking</a>
         </div>
     @endif
 @endsection

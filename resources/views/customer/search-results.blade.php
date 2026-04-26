@@ -93,7 +93,7 @@
 
                     <div class="mt-4 flex gap-2">
                         <a href="{{ route('customer.room.details', ['room' => $room->id, 'check_in' => request('check_in'), 'check_out' => request('check_out'), 'guests' => request('guests')]) }}" class="rounded-xl border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50">Details</a>
-                        <a href="{{ route('customer.booking.form', ['room' => $room->id, 'check_in' => request('check_in'), 'check_out' => request('check_out'), 'guests' => request('guests')]) }}" class="btn-gold text-sm">Reserve</a>
+                        <a href="{{ route('customer.booking.form', ['room' => $room->id, 'check_in' => request('check_in'), 'check_out' => request('check_out'), 'guests' => request('guests')]) }}" class="btn-gold text-sm">Book</a>
                     </div>
                 </div>
             </article>

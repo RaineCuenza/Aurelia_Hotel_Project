@@ -184,7 +184,7 @@
 
             <div class="glass-panel stat-card">
                 <div>
-                    <p class="stat-label">Reserved</p>
+                    <p class="stat-label">Booked</p>
                     <p class="stat-value mt-2 stat-color-reserved">{{ $reservedRooms }}</p>
                 </div>
             </div>
@@ -220,11 +220,13 @@
                                 <p class="guest-name">{{ $reservation->guest_name }}</p>
                                 <p class="guest-room">Room {{ $reservation->room->room_number }} • {{ $reservation->room->roomType->name }}</p>
                             </div>
-                            @if ($reservation->status === 'confirmed')
+                            @if ($reservation->status === 'confirmed' && $reservation->payment_status === 'paid')
                                 <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="ml-2" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                                     @csrf
                                     <button type="submit" class="action-btn btn-checkin">Check-in</button>
                                 </form>
+                            @elseif ($reservation->status === 'confirmed' && $reservation->payment_status !== 'paid')
+                                <span class="status-badge-small status-pending">Awaiting Payment</span>
                             @else
                                 <span class="status-badge-small status-checked-in">Checked In</span>
                             @endif
@@ -267,6 +269,9 @@
 
             <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 @forelse ($roomStatus as $room)
+                    @php
+                        $roomStatusLabel = $room->status === 'reserved' ? 'Booked' : ucfirst($room->status);
+                    @endphp
                     <div class="border rounded-lg p-3 {{ $room->status === 'available' ? 'bg-green-50 border-green-300' : ($room->status === 'occupied' ? 'bg-blue-50 border-blue-300' : 'bg-orange-50 border-orange-300') }}">
                         <div class="flex justify-between items-center">
                             <div>
@@ -274,7 +279,7 @@
                                 <p class="text-xs text-gray-600">{{ $room->roomType->name }}</p>
                             </div>
                             <span class="font-semibold {{ $room->status === 'available' ? 'text-green-700' : ($room->status === 'occupied' ? 'text-blue-700' : 'text-orange-700') }}">
-                                {{ ucfirst($room->status) }}
+                                {{ $roomStatusLabel }}
                             </span>
                         </div>
                     </div>

@@ -67,7 +67,7 @@
 
     <div class="mx-auto w-full max-w-4xl">
         <div class="reservation-shell p-6 sm:p-8">
-            <h1 class="section-title text-4xl font-bold text-gray-900">New Reservation</h1>
+            <h1 class="section-title text-4xl font-bold text-gray-900">New Booking</h1>
             <p class="mt-2 text-sm text-gray-600">Create a premium guest booking for Aurelia Hotel.</p>
 
             @if (session('success'))
@@ -156,7 +156,7 @@
                 </div>
 
                 <div class="mt-6 flex flex-wrap gap-3">
-                    <button type="submit" class="btn-gold-submit">Create Reservation</button>
+                    <button type="submit" class="btn-gold-submit">Create Booking</button>
                     <a href="{{ route('reservations.index') }}" class="btn-secondary px-4 py-3">Cancel</a>
                 </div>
             </form>

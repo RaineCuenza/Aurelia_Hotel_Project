@@ -103,8 +103,8 @@
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <a href="{{ route('staff.reservations') }}" class="text-sm text-blue-600 hover:text-blue-800">← Back to Reservations</a>
-                <h1 class="section-title text-4xl font-bold text-gray-900 mt-2">Reservation #{{ $reservation->id }}</h1>
+                <a href="{{ route('staff.reservations') }}" class="text-sm text-blue-600 hover:text-blue-800">← Back to Bookings</a>
+                <h1 class="section-title text-4xl font-bold text-gray-900 mt-2">Booking #{{ $reservation->id }}</h1>
             </div>
             <span class="status-badge status-{{ str_replace('_', '-', $reservation->status) }}">
                 {{ str_replace('_', ' ', $reservation->status) }}
@@ -169,17 +169,25 @@
                     <p class="detail-label">Total Amount</p>
                     <p class="detail-value text-amber-900">PHP {{ number_format($reservation->total_amount, 2) }}</p>
                 </div>
+                <div class="detail-item">
+                    <p class="detail-label">Payment Status</p>
+                    <p class="detail-value">{{ ucfirst(str_replace('_', ' ', $reservation->payment_status ?? 'unpaid')) }}</p>
+                </div>
             </div>
         </div>
 
         <!-- Actions -->
-        @if ($reservation->status === 'confirmed')
+        @if ($reservation->status === 'confirmed' && $reservation->payment_status === 'paid')
             <div class="glass-panel p-5 sm:p-6">
                 <p class="text-gray-600 mb-4">This guest is ready to check in.</p>
                 <form action="{{ route('staff.checkin', $reservation) }}" method="POST" class="inline" data-confirm-action="Confirm check-in for {{ $reservation->guest_name }} in Room {{ $reservation->room->room_number }}?" data-confirm-title="Confirm Check-in" data-confirm-button="Yes, Check-in" data-loader-message="Checking in guest...">
                     @csrf
                     <button type="submit" class="action-btn btn-checkin">Check-in Guest</button>
                 </form>
+            </div>
+        @elseif ($reservation->status === 'confirmed' && $reservation->payment_status !== 'paid')
+            <div class="glass-panel p-5 sm:p-6">
+                <p class="text-gray-600">This booking is confirmed but not paid yet. Check-in is disabled until payment is completed.</p>
             </div>
         @elseif ($reservation->status === 'checked_in')
             <div class="glass-panel p-5 sm:p-6">
@@ -191,7 +199,7 @@
             </div>
         @else
             <div class="glass-panel p-5 sm:p-6">
-                <p class="text-gray-600">This reservation has been completed.</p>
+                <p class="text-gray-600">This booking has been completed.</p>
             </div>
         @endif
     </div>

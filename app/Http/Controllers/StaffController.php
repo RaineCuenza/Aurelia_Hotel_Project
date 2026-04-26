@@ -17,9 +17,10 @@ class StaffController extends Controller
     {
         $today = Carbon::today();
 
-        // Today's check-ins (confirmed reservations with check-in date = today)
+        // Today's check-ins (paid and confirmed bookings with check-in date = today)
         $todayCheckIns = Reservation::where('check_in', $today)
             ->where('status', 'confirmed')
+            ->where('payment_status', 'paid')
             ->with(['room.roomType', 'user'])
             ->orderBy('created_at', 'desc')
             ->limit(8)
@@ -101,7 +102,11 @@ class StaffController extends Controller
     {
         // Can only check in confirmed reservations
         if ($reservation->status !== 'confirmed') {
-            return redirect()->back()->with('error', 'Only confirmed reservations can be checked in.');
+            return redirect()->back()->with('error', 'Only confirmed bookings can be checked in.');
+        }
+
+        if ($reservation->payment_status !== 'paid') {
+            return redirect()->back()->with('error', 'Only paid bookings can be checked in.');
         }
 
         DB::transaction(function () use ($reservation) {

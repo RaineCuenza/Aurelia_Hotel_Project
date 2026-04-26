@@ -20,6 +20,11 @@ class Reservation extends Model
         'special_requests',
         'status',
         'total_amount',
+        'payment_status',
+        'payment_reference',
+        'payment_method',
+        'payment_paid_at',
+        'payment_expires_at',
     ];
 
     protected function casts(): array
@@ -28,6 +33,8 @@ class Reservation extends Model
             'check_in' => 'date',
             'check_out' => 'date',
             'total_amount' => 'decimal:2',
+            'payment_paid_at' => 'datetime',
+            'payment_expires_at' => 'datetime',
         ];
     }
 
