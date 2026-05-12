@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
-class Reservation extends Model
+class Booking extends Model
 {
+    protected $table = 'bookings';
+
     protected $fillable = [
         'user_id',
         'room_id',

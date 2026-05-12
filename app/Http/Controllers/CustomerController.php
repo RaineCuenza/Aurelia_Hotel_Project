@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\Request;
@@ -45,8 +45,8 @@ class CustomerController extends Controller
                 $query->where('room_type_id', $validated['room_type_id']);
             })
             ->when($checkIn && $checkOut, function ($query) use ($checkIn, $checkOut) {
-                $query->whereDoesntHave('reservations', function ($reservationQuery) use ($checkIn, $checkOut) {
-                    $reservationQuery
+                $query->whereDoesntHave('bookings', function ($bookQuery) use ($checkIn, $checkOut) {
+                    $bookQuery
                         ->where(function ($statusQuery) {
                             $statusQuery->whereIn('status', ['confirmed', 'checked_in'])
                                 ->orWhere(function ($pendingQuery) {
@@ -120,7 +120,7 @@ class CustomerController extends Controller
             'special_requests' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $reservation = DB::transaction(function () use ($room, $validated, $request) {
+        $book = DB::transaction(function () use ($room, $validated, $request) {
             $lockedRoom = Room::with('roomType')->lockForUpdate()->findOrFail($room->id);
 
             $this->ensureRoomIsAvailable($lockedRoom, $validated['check_in'], $validated['check_out']);
@@ -128,7 +128,7 @@ class CustomerController extends Controller
             $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
             $total = $nights * (float) $lockedRoom->roomType->base_price;
 
-            $reservation = Reservation::create([
+            $book = Booking::create([
                 'user_id' => $request->user()?->id,
                 'room_id' => $lockedRoom->id,
                 'guest_name' => $validated['guest_name'],
@@ -145,47 +145,45 @@ class CustomerController extends Controller
                 'payment_expires_at' => now()->addMinutes(15),
             ]);
 
-            $lockedRoom->update(['status' => 'reserved']);
+            $lockedRoom->update(['status' => 'booked']);
 
-            return $reservation;
+            return $book;
         });
 
-        return redirect()->route('customer.booking.payment', $reservation);
+        return redirect()->route('customer.booking.payment', $book);
     }
 
-    public function paymentPage(Reservation $reservation, Request $request)
+    public function paymentPage(Booking $book, Request $request)
     {
-        if ((int) $reservation->user_id !== (int) $request->user()->id) {
+        if ((int) $book->user_id !== (int) $request->user()->id) {
             abort(403, 'You are not allowed to access this payment.');
         }
 
-        if ($reservation->payment_status === 'paid') {
-            return redirect()->route('customer.booking.confirmation', $reservation)
+        if ($book->payment_status === 'paid') {
+            return redirect()->route('customer.booking.confirmation', $book)
                 ->with('success', 'Payment already completed.');
         }
 
-        if ($reservation->status === 'cancelled' || in_array($reservation->payment_status, ['failed', 'expired'], true)) {
+        if ($book->status === 'cancelled' || in_array($book->payment_status, ['failed', 'expired'], true)) {
             return redirect()->route('customer.history')
                 ->with('error', 'This booking can no longer be paid. Please create a new booking.');
         }
 
-        if ($reservation->payment_expires_at && now()->greaterThan($reservation->payment_expires_at)) {
-            $this->expirePendingPayment($reservation);
+        if ($book->payment_expires_at && now()->greaterThan($book->payment_expires_at)) {
+            $this->expirePendingPayment($book);
 
             return redirect()->route('customer.history')
                 ->with('error', 'Your payment session expired. The room has been released.');
         }
 
-        $reservation->load('room.roomType');
+        $book->load('room.roomType');
 
-        return view('customer.payment', [
-            'reservation' => $reservation,
-        ]);
+        return view('customer.payment', ['book' => $book]);
     }
 
-    public function processMockPayment(Request $request, Reservation $reservation)
+    public function processMockPayment(Request $request, Booking $book)
     {
-        if ((int) $reservation->user_id !== (int) $request->user()->id) {
+        if ((int) $book->user_id !== (int) $request->user()->id) {
             abort(403, 'You are not allowed to process this payment.');
         }
 
@@ -195,38 +193,38 @@ class CustomerController extends Controller
 
         $outcome = $validated['outcome'];
 
-        $updated = DB::transaction(function () use ($reservation, $outcome) {
-            $lockedReservation = Reservation::with('room')->lockForUpdate()->findOrFail($reservation->id);
+        $updated = DB::transaction(function () use ($book, $outcome) {
+            $lockedBook = Booking::with('room')->lockForUpdate()->findOrFail($book->id);
 
-            if ($lockedReservation->payment_status === 'paid') {
-                return $lockedReservation;
+            if ($lockedBook->payment_status === 'paid') {
+                return $lockedBook;
             }
 
-            if ($lockedReservation->payment_expires_at && now()->greaterThan($lockedReservation->payment_expires_at)) {
-                $this->expirePendingPayment($lockedReservation);
+            if ($lockedBook->payment_expires_at && now()->greaterThan($lockedBook->payment_expires_at)) {
+                $this->expirePendingPayment($lockedBook);
 
-                return $lockedReservation->fresh(['room']);
+                return $lockedBook->fresh(['room']);
             }
 
             if ($outcome === 'success') {
-                $lockedReservation->update([
+                $lockedBook->update([
                     'status' => 'confirmed',
                     'payment_status' => 'paid',
                     'payment_method' => 'mock_card',
                     'payment_paid_at' => now(),
                 ]);
 
-                return $lockedReservation->fresh(['room']);
+                return $lockedBook->fresh(['room']);
             }
 
-            $lockedReservation->update([
+            $lockedBook->update([
                 'status' => 'cancelled',
                 'payment_status' => 'failed',
             ]);
 
-            $lockedReservation->room->update(['status' => 'available']);
+            $lockedBook->room->update(['status' => 'available']);
 
-            return $lockedReservation->fresh(['room']);
+            return $lockedBook->fresh(['room']);
         });
 
         if ($updated->payment_status === 'paid') {
@@ -243,17 +241,17 @@ class CustomerController extends Controller
             ->with('error', 'Payment was not completed. The room was released.');
     }
 
-    public function bookingConfirmation(Reservation $reservation, Request $request)
+    public function bookingConfirmation(Booking $book, Request $request)
     {
-        if ((int) $reservation->user_id !== (int) $request->user()->id) {
+        if ((int) $book->user_id !== (int) $request->user()->id) {
             abort(403, 'You are not allowed to view this booking.');
         }
 
-        $reservation->load('room.roomType');
-        $reference = $this->bookingReference($reservation);
+        $book->load('room.roomType');
+        $reference = $this->bookingReference($book);
 
         return view('customer.booking-confirmation', [
-            'reservation' => $reservation,
+            'book' => $book,
             'reference' => $reference,
         ]);
     }
@@ -263,21 +261,21 @@ class CustomerController extends Controller
         $user = $request->user();
         $today = Carbon::today();
 
-        $activeStay = Reservation::with('room.roomType')
+        $activeStay = Booking::with('room.roomType')
             ->where('user_id', $user->id)
             ->where('status', 'checked_in')
             ->whereDate('check_out', '>=', $today)
             ->orderBy('check_out')
             ->get();
 
-        $upcoming = Reservation::with('room.roomType')
+        $upcoming = Booking::with('room.roomType')
             ->where('user_id', $user->id)
             ->whereIn('status', ['pending', 'confirmed'])
             ->whereDate('check_out', '>=', $today)
             ->orderBy('check_in')
             ->get();
 
-        $past = Reservation::with('room.roomType')
+        $past = Booking::with('room.roomType')
             ->where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->where('status', 'checked_out')
@@ -301,7 +299,7 @@ class CustomerController extends Controller
             ]);
         }
 
-        $hasConflict = Reservation::query()
+        $hasConflict = Booking::query()
             ->where('room_id', $room->id)
             ->where(function ($query) {
                 $query->whereIn('status', ['confirmed', 'checked_in'])
@@ -333,9 +331,9 @@ class CustomerController extends Controller
         return max(1, Carbon::parse($checkIn)->diffInDays(Carbon::parse($checkOut)));
     }
 
-    private function bookingReference(Reservation $reservation): string
+    private function bookingReference(Booking $book): string
     {
-        return 'AUR-' . $reservation->created_at->format('Ymd') . '-' . str_pad((string) $reservation->id, 6, '0', STR_PAD_LEFT);
+        return 'AUR-' . $book->created_at->format('Ymd') . '-' . str_pad((string) $book->id, 6, '0', STR_PAD_LEFT);
     }
 
     private function mockPaymentReference(): string
@@ -343,17 +341,17 @@ class CustomerController extends Controller
         return 'MOCK-' . strtoupper(bin2hex(random_bytes(4)));
     }
 
-    private function expirePendingPayment(Reservation $reservation): void
+    private function expirePendingPayment(Booking $book): void
     {
-        if ($reservation->payment_status === 'paid') {
+        if ($book->payment_status === 'paid') {
             return;
         }
 
-        $reservation->update([
+        $book->update([
             'status' => 'cancelled',
             'payment_status' => 'expired',
         ]);
 
-        $reservation->room()->update(['status' => 'available']);
+        $book->room()->update(['status' => 'available']);
     }
 }

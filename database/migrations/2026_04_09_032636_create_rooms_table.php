@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('room_type_id')->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->string('room_number')->unique();
             $table->unsignedTinyInteger('max_guests')->default(2);
-            $table->enum('status', ['available', 'reserved', 'occupied', 'cleaning', 'maintenance'])->default('available')->index();
+            $table->enum('status', ['available', 'booked', 'occupied', 'cleaning', 'maintenance'])->default('available')->index();
             $table->timestamps();
         });
     }

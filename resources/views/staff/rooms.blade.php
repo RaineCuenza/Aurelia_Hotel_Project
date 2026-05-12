@@ -60,7 +60,7 @@
             color: #0c4a6e;
         }
 
-        .status-reserved {
+        .status-booked {
             background: #fef3c7;
             color: #92400e;
         }
@@ -97,7 +97,7 @@
             color: #0c4a6e;
         }
 
-        .value-reserved {
+        .value-booked {
             color: #92400e;
         }
 
@@ -149,7 +149,7 @@
 
             <div class="glass-panel stat-card">
                 <p class="stat-label">Booked</p>
-                <p class="stat-value value-reserved">{{ $stats['reserved'] }}</p>
+                <p class="stat-value value-booked">{{ $stats['booked'] }}</p>
             </div>
 
             <div class="glass-panel stat-card">
@@ -169,21 +169,21 @@
 
             <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @forelse ($rooms as $room)
-                    <div class="room-card {{ $room->status === 'available' ? 'bg-green-50 border-green-200' : ($room->status === 'reserved' ? 'bg-amber-50 border-amber-200' : ($room->status === 'occupied' ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200')) }}">
+                    <div class="room-card {{ $room->status === 'available' ? 'bg-green-50 border-green-200' : ($room->status === 'booked' ? 'bg-amber-50 border-amber-200' : ($room->status === 'occupied' ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200')) }}">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="room-number">{{ $room->room_number }}</p>
                                 <p class="room-type">{{ $room->roomType->name }}</p>
                             </div>
-                            <span class="room-status {{ $room->status === 'available' ? 'status-available' : ($room->status === 'reserved' ? 'status-reserved' : ($room->status === 'occupied' ? 'status-occupied' : 'status-cleaning')) }}">
+                            <span class="room-status {{ $room->status === 'available' ? 'status-available' : ($room->status === 'booked' ? 'status-booked' : ($room->status === 'occupied' ? 'status-occupied' : 'status-cleaning')) }}">
                                 {{ ucfirst($room->status) }}
                             </span>
                         </div>
 
-                        @if (in_array($room->status, ['reserved', 'occupied'], true) && $room->reservations->count() > 0)
+                        @if (in_array($room->status, ['booked', 'occupied'], true) && $room->bookings->count() > 0)
                             <div class="mt-3 pt-3 border-t border-current border-opacity-20">
                                 <p class="text-xs text-gray-600 font-semibold">Current Booking:</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $room->reservations->first()->guest_name }}</p>
+                                <p class="text-sm font-medium text-gray-900">{{ $room->bookings->first()->guest_name }}</p>
                             </div>
                         @endif
 

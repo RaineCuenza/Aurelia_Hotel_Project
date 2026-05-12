@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\User;
 use Carbon\Carbon;
@@ -37,7 +37,7 @@ class CheckoutTestSeeder extends Seeder
             $room = Room::with('roomType')->first();
         }
 
-        // Only create reservation if we have a room
+        // Only create booking if we have a room
         if ($room && $room->roomType) {
             // Define check-in as yesterday and check-out as today
             $checkIn = Carbon::yesterday();
@@ -47,8 +47,8 @@ class CheckoutTestSeeder extends Seeder
             // Calculate total amount based on room type base price
             $totalAmount = $room->roomType->base_price * $nights;
 
-            // Create the reservation with checked_in status so it shows in checkout queue
-            Reservation::firstOrCreate(
+            // Create the booking with checked_in status so it shows in checkout queue
+            Booking::firstOrCreate(
                 [
                     'user_id' => $testCustomer->id,
                     'room_id' => $room->id,
@@ -60,7 +60,7 @@ class CheckoutTestSeeder extends Seeder
                     'guest_email' => $testCustomer->email,
                     'guest_phone' => '+63 912 345 6789',
                     'guests' => 1,
-                    'special_requests' => 'Test reservation for checkout testing.',
+                    'special_requests' => 'Test booking for checkout testing.',
                     'status' => 'checked_in',
                     'total_amount' => $totalAmount,
                 ]
@@ -69,7 +69,7 @@ class CheckoutTestSeeder extends Seeder
             // Update room status to occupied since guest is checked in
             $room->update(['status' => 'occupied']);
 
-            $this->command->info("✓ Test checkout reservation created for {$testCustomer->first_name} in Room {$room->room_number} ({$room->roomType->name})");
+            $this->command->info("✓ Test checkout booking created for {$testCustomer->first_name} in Room {$room->room_number} ({$room->roomType->name})");
             $this->command->info("  Check-in: {$checkIn->format('M d, Y')}, Check-out: {$checkOut->format('M d, Y')}");
             $this->command->info("  Status: checked_in (ready for checkout testing)");
             $this->command->info("  Total: PHP {$totalAmount}");

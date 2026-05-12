@@ -201,14 +201,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($recentReservations as $reservation)
+                        @forelse ($recentBookings as $booking)
                             <tr class="table-row">
-                                <td class="py-3 pr-3 font-medium">{{ $reservation->guest_name }}</td>
-                                <td class="py-3 pr-3">{{ $reservation->room?->room_number ?? 'N/A' }}</td>
-                                <td class="py-3 pr-3">{{ $reservation->check_in->format('M d, Y') }}</td>
-                                <td class="py-3 pr-3">{{ $reservation->check_out->format('M d, Y') }}</td>
+                                <td class="py-3 pr-3 font-medium">{{ $booking->guest_name }}</td>
+                                <td class="py-3 pr-3">{{ $booking->room?->room_number ?? 'N/A' }}</td>
+                                <td class="py-3 pr-3">{{ $booking->check_in->format('M d, Y') }}</td>
+                                <td class="py-3 pr-3">{{ $booking->check_out->format('M d, Y') }}</td>
                                 <td class="py-3 pr-3">
-                                    <span class="status-badge status-{{ $reservation->status }}">{{ str_replace('_', ' ', $reservation->status) }}</span>
+                                    <span class="status-badge status-{{ $booking->status }}">{{ str_replace('_', ' ', $booking->status) }}</span>
                                 </td>
                             </tr>
                         @empty

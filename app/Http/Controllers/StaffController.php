@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class StaffController extends Controller
         $today = Carbon::today();
 
         // Today's check-ins (paid and confirmed bookings with check-in date = today)
-        $todayCheckIns = Reservation::where('check_in', $today)
+        $todayCheckIns = Booking::where('check_in', $today)
             ->where('status', 'confirmed')
             ->where('payment_status', 'paid')
             ->with(['room.roomType', 'user'])
@@ -26,8 +26,8 @@ class StaffController extends Controller
             ->limit(8)
             ->get();
 
-        // Today's check-outs (checked-in reservations with check-out date = today)
-        $todayCheckOuts = Reservation::where('check_out', $today)
+        // Today's check-outs (checked-in bookings with check-out date = today)
+        $todayCheckOuts = Booking::where('check_out', $today)
             ->where('status', 'checked_in')
             ->with(['room.roomType', 'user'])
             ->orderBy('check_out', 'asc')
@@ -35,14 +35,14 @@ class StaffController extends Controller
             ->get();
 
         // Active guests (currently checked-in)
-        $activeGuests = Reservation::where('status', 'checked_in')
+        $activeGuests = Booking::where('status', 'checked_in')
             ->with(['room.roomType', 'user'])
             ->count();
 
         // Room status breakdown
         $totalRooms = Room::count();
         $availableRooms = Room::where('status', 'available')->count();
-        $reservedRooms = Room::where('status', 'reserved')->count();
+        $bookedRooms = Room::where('status', 'booked')->count();
         $occupiedRooms = Room::where('status', 'occupied')->count();
         $cleaningRooms = Room::where('status', 'cleaning')->count();
 
@@ -57,7 +57,7 @@ class StaffController extends Controller
             'activeGuests' => $activeGuests,
             'totalRooms' => $totalRooms,
             'availableRooms' => $availableRooms,
-            'reservedRooms' => $reservedRooms,
+            'bookedRooms' => $bookedRooms,
             'occupiedRooms' => $occupiedRooms,
             'cleaningRooms' => $cleaningRooms,
             'roomStatus' => $roomStatus,
@@ -65,11 +65,11 @@ class StaffController extends Controller
     }
 
     /**
-     * Display staff reservations with filtering and search
+     * Display staff bookings with filtering and search
      */
-    public function reservations(Request $request)
+    public function bookings(Request $request)
     {
-        $query = Reservation::with(['room.roomType', 'user']);
+        $query = Booking::with(['room.roomType', 'user']);
 
         // Search by guest name, email, or room
         if ($request->filled('search')) {
@@ -88,57 +88,57 @@ class StaffController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $reservations = $query->orderBy('created_at', 'desc')->paginate(15);
+        $bookings = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('staff.reservations', [
-            'reservations' => $reservations,
+        return view('staff.bookings', [
+            'bookings' => $bookings,
         ]);
     }
 
     /**
-     * Check-in a guest: Update reservation to checked-in and room to occupied
+    * Check-in a guest: Update booking to checked-in and room to occupied
      */
-    public function checkIn(Request $request, Reservation $reservation)
+    public function checkIn(Request $request, Booking $book)
     {
-        // Can only check in confirmed reservations
-        if ($reservation->status !== 'confirmed') {
+        // Can only check in confirmed bookings
+        if ($book->status !== 'confirmed') {
             return redirect()->back()->with('error', 'Only confirmed bookings can be checked in.');
         }
 
-        if ($reservation->payment_status !== 'paid') {
+        if ($book->payment_status !== 'paid') {
             return redirect()->back()->with('error', 'Only paid bookings can be checked in.');
         }
 
-        DB::transaction(function () use ($reservation) {
-            // Update reservation status
-            $reservation->update(['status' => 'checked_in']);
+        DB::transaction(function () use ($book) {
+            // Update booking status
+            $book->update(['status' => 'checked_in']);
 
             // Mark room as occupied
-            $reservation->room->update(['status' => 'occupied']);
+            $book->room->update(['status' => 'occupied']);
         });
 
-        return redirect()->back()->with('success', "{$reservation->guest_name} has been checked in successfully.");
+        return redirect()->back()->with('success', "{$book->guest_name} has been checked in successfully.");
     }
 
     /**
-     * Check-out a guest: Update reservation to completed and room to cleaning
+    * Check-out a guest: Update booking to completed and room to cleaning
      */
-    public function checkOut(Request $request, Reservation $reservation)
+    public function checkOut(Request $request, Booking $book)
     {
-        // Can only check out checked-in reservations
-        if ($reservation->status !== 'checked_in') {
+        // Can only check out checked-in bookings
+        if ($book->status !== 'checked_in') {
             return redirect()->back()->with('error', 'Only checked-in guests can be checked out.');
         }
 
-        DB::transaction(function () use ($reservation) {
-            // Update reservation status
-            $reservation->update(['status' => 'checked_out']);
+        DB::transaction(function () use ($book) {
+            // Update booking status
+            $book->update(['status' => 'checked_out']);
 
             // Room requires housekeeping before becoming available again
-            $reservation->room->update(['status' => 'cleaning']);
+            $book->room->update(['status' => 'cleaning']);
         });
 
-        return redirect()->back()->with('success', "{$reservation->guest_name} has been checked out. Room moved to cleaning.");
+        return redirect()->back()->with('success', "{$book->guest_name} has been checked out. Room moved to cleaning.");
     }
 
     /**
@@ -160,14 +160,14 @@ class StaffController extends Controller
      */
     public function rooms()
     {
-        $rooms = Room::with(['roomType', 'reservations' => function ($q) {
+        $rooms = Room::with(['roomType', 'bookings' => function ($q) {
             $q->where('status', 'checked_in')->latest();
         }])->orderBy('room_number', 'asc')->get();
 
         $stats = [
             'total' => Room::count(),
             'available' => Room::where('status', 'available')->count(),
-            'reserved' => Room::where('status', 'reserved')->count(),
+            'booked' => Room::where('status', 'booked')->count(),
             'occupied' => Room::where('status', 'occupied')->count(),
             'cleaning' => Room::where('status', 'cleaning')->count(),
         ];
@@ -179,14 +179,14 @@ class StaffController extends Controller
     }
 
     /**
-     * View reservation details
+     * View booking details
      */
-    public function showReservation(Reservation $reservation)
+    public function showBooking(Booking $book)
     {
-        $reservation->load(['room.roomType', 'user']);
+        $book->load(['room.roomType', 'user']);
 
-        return view('staff.reservation-detail', [
-            'reservation' => $reservation,
+        return view('staff.booking-detail', [
+            'book' => $book,
         ]);
     }
 }

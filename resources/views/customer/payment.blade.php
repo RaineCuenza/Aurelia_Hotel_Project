@@ -55,23 +55,23 @@
         <div class="panel mt-5 grid gap-3 md:grid-cols-2">
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Booking Reference</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->payment_reference }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ $book->payment_reference }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Room</p>
-                <p class="mt-1 font-semibold text-stone-900">Room {{ $reservation->room->room_number }} • {{ $reservation->room->roomType->name }}</p>
+                <p class="mt-1 font-semibold text-stone-900">Room {{ $book->room->room_number }} • {{ $book->room->roomType->name }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Dates</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->check_in->format('M d, Y') }} - {{ $reservation->check_out->format('M d, Y') }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ $book->check_in->format('M d, Y') }} - {{ $book->check_out->format('M d, Y') }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Total</p>
-                <p class="mt-1 text-xl font-bold text-amber-800">PHP {{ number_format((float) $reservation->total_amount, 2) }}</p>
+                <p class="mt-1 text-xl font-bold text-amber-800">PHP {{ number_format((float) $book->total_amount, 2) }}</p>
             </div>
             <div class="md:col-span-2">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Payment Expires</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ optional($reservation->payment_expires_at)->format('M d, Y h:i A') ?? 'N/A' }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ optional($book->payment_expires_at)->format('M d, Y h:i A') ?? 'N/A' }}</p>
             </div>
         </div>
 
@@ -79,19 +79,19 @@
             <p class="text-sm text-stone-700">Choose a mock outcome to simulate payment gateway response:</p>
 
             <div class="mt-4 flex flex-wrap gap-2">
-                <form action="{{ route('customer.booking.payment.process', $reservation) }}" method="POST">
+                <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="success">
                     <button type="submit" class="mock-btn mock-success">Simulate Payment Success</button>
                 </form>
 
-                <form action="{{ route('customer.booking.payment.process', $reservation) }}" method="POST">
+                <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="failed">
                     <button type="submit" class="mock-btn mock-failed">Simulate Payment Failed</button>
                 </form>
 
-                <form action="{{ route('customer.booking.payment.process', $reservation) }}" method="POST">
+                <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="cancelled">
                     <button type="submit" class="mock-btn mock-cancel">Simulate Cancel</button>

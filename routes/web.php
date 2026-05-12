@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\RoomSearchController;
 use App\Http\Controllers\StaffController;
 use App\Models\User;
@@ -70,16 +70,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/book/{room}', [CustomerController::class, 'book'])
             ->whereNumber('room')
             ->name('customer.booking.store');
-        Route::get('/booking/{reservation}/payment', [CustomerController::class, 'paymentPage'])
+        Route::get('/booking/{book}/payment', [CustomerController::class, 'paymentPage'])
             ->name('customer.booking.payment');
-        Route::post('/booking/{reservation}/payment', [CustomerController::class, 'processMockPayment'])
+        Route::post('/booking/{book}/payment', [CustomerController::class, 'processMockPayment'])
             ->name('customer.booking.payment.process');
-        Route::get('/booking/confirmation/{reservation}', [CustomerController::class, 'bookingConfirmation'])
+        Route::get('/booking/confirmation/{book}', [CustomerController::class, 'bookingConfirmation'])
             ->name('customer.booking.confirmation');
         Route::get('/my-bookings', [CustomerController::class, 'history'])->name('customer.history');
-        Route::get('/my-reservations', function () {
-            return redirect()->route('customer.history');
-        })->name('customer.history.legacy');
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -96,50 +93,50 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('rooms.search', request()->query());
     })->name('search.page');
 
-    Route::get('/reservations', [ReservationController::class, 'index'])
+    Route::get('/bookings', [BookingController::class, 'index'])
         ->middleware('role:admin,staff')
-        ->name('reservations.index');
-    Route::get('/reservations/create', [ReservationController::class, 'create'])
+        ->name('bookings.index');
+    Route::get('/bookings/create', [BookingController::class, 'create'])
         ->middleware('role:admin,staff')
-        ->name('reservations.create');
-    Route::post('/reservations', [ReservationController::class, 'store'])
+        ->name('bookings.create');
+    Route::post('/bookings', [BookingController::class, 'store'])
         ->middleware('role:admin,staff')
-        ->name('reservations.store');
-    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])
+        ->name('bookings.store');
+    Route::get('/bookings/{book}', [BookingController::class, 'show'])
         ->middleware('role:admin,staff')
-        ->name('reservations.show');
-    Route::get('/reservations/{reservation}/edit', [ReservationController::class, 'edit'])
+        ->name('bookings.show');
+    Route::get('/bookings/{book}/edit', [BookingController::class, 'edit'])
         ->middleware('role:admin,staff')
-        ->name('reservations.edit');
-    Route::patch('/reservations/{reservation}/status', [ReservationController::class, 'updateStatus'])
+        ->name('bookings.edit');
+    Route::patch('/bookings/{book}/status', [BookingController::class, 'updateStatus'])
         ->middleware('role:admin,staff')
-        ->name('reservations.status');
-    Route::match(['put', 'patch'], '/reservations/{reservation}', [ReservationController::class, 'update'])
+        ->name('bookings.status');
+    Route::match(['put', 'patch'], '/bookings/{book}', [BookingController::class, 'update'])
         ->middleware('role:admin,staff')
-        ->name('reservations.update');
-    Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy'])
+        ->name('bookings.update');
+    Route::delete('/bookings/{book}', [BookingController::class, 'destroy'])
         ->middleware('role:admin,staff')
-        ->name('reservations.destroy');
+        ->name('bookings.destroy');
 
-    Route::get('/summary.php', [ReservationController::class, 'summary'])
+    Route::get('/summary.php', [BookingController::class, 'summary'])
         ->middleware('role:admin,staff')
         ->name('summary.page');
 
-    Route::get('/reserve.php', function () {
-        return redirect()->route('reservations.create', request()->query());
-    })->middleware('role:admin,staff')->name('reserve.page');
-
     Route::get('/book.php', function () {
-        return redirect()->route('reservations.create', request()->query());
+        return redirect()->route('bookings.create', request()->query());
     })->middleware('role:admin,staff')->name('book.page');
+
+    Route::get('/reserve.php', function () {
+        return redirect()->route('bookings.create', request()->query());
+    })->middleware('role:admin,staff')->name('reserve.page');
 
     // Staff Routes
     Route::middleware('role:staff,admin')->group(function () {
         Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
-        Route::get('/staff/reservations', [StaffController::class, 'reservations'])->name('staff.reservations');
-        Route::get('/staff/reservations/{reservation}', [StaffController::class, 'showReservation'])->name('staff.reservation-detail');
-        Route::post('/staff/reservations/{reservation}/checkin', [StaffController::class, 'checkIn'])->name('staff.checkin');
-        Route::post('/staff/reservations/{reservation}/checkout', [StaffController::class, 'checkOut'])->name('staff.checkout');
+        Route::get('/staff/bookings', [StaffController::class, 'bookings'])->name('staff.bookings');
+        Route::get('/staff/bookings/{book}', [StaffController::class, 'showBooking'])->name('staff.booking-detail');
+        Route::post('/staff/bookings/{book}/checkin', [StaffController::class, 'checkIn'])->name('staff.checkin');
+        Route::post('/staff/bookings/{book}/checkout', [StaffController::class, 'checkOut'])->name('staff.checkout');
         Route::get('/staff/rooms', [StaffController::class, 'rooms'])->name('staff.rooms');
         Route::post('/staff/rooms/{room}/mark-clean', [StaffController::class, 'markRoomClean'])->name('staff.rooms.mark-clean');
     });

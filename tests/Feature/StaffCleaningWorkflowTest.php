@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
@@ -15,14 +15,14 @@ class StaffCleaningWorkflowTest extends TestCase
 
     public function test_checkout_moves_room_to_cleaning(): void
     {
-        [$staff, $room, $reservation] = $this->makeCheckedInReservation();
+        [$staff, $room, $booking] = $this->makeCheckedInBooking();
 
-        $response = $this->actingAs($staff)->post(route('staff.checkout', $reservation));
+        $response = $this->actingAs($staff)->post(route('staff.checkout', $booking));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertSame('checked_out', $reservation->fresh()->status);
+        $this->assertSame('checked_out', $booking->fresh()->status);
         $this->assertSame('cleaning', $room->fresh()->status);
     }
 
@@ -81,9 +81,9 @@ class StaffCleaningWorkflowTest extends TestCase
     }
 
     /**
-     * @return array{0: User, 1: Room, 2: Reservation}
+    * @return array{0: User, 1: Room, 2: Booking}
      */
-    private function makeCheckedInReservation(): array
+    private function makeCheckedInBooking(): array
     {
         $staff = User::factory()->create([
             'role' => 'staff',
@@ -103,7 +103,7 @@ class StaffCleaningWorkflowTest extends TestCase
             'status' => 'occupied',
         ]);
 
-        $reservation = Reservation::create([
+        $booking = Booking::create([
             'room_id' => $room->id,
             'guest_name' => 'Checked In Guest',
             'guest_email' => 'checkedin@example.com',
@@ -115,6 +115,6 @@ class StaffCleaningWorkflowTest extends TestCase
             'total_amount' => 3000,
         ]);
 
-        return [$staff, $room, $reservation];
+        return [$staff, $room, $booking];
     }
 }

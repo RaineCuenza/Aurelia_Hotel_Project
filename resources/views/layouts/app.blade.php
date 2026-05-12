@@ -747,13 +747,13 @@
                         <nav class="nav-links text-sm">
                             @if ($isStaff && !$isAdmin)
                                 <a href="{{ route('staff.dashboard') }}" class="nav-link {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}">Dashboard</a>
-                                <a href="{{ route('staff.reservations') }}" class="nav-link {{ request()->routeIs('staff.reservations', 'staff.reservation-detail') ? 'active' : '' }}">Bookings</a>
+                                <a href="{{ route('staff.bookings') }}" class="nav-link {{ request()->routeIs('staff.bookings', 'staff.booking-detail') ? 'active' : '' }}">Bookings</a>
                                 <a href="{{ route('staff.rooms') }}" class="nav-link {{ request()->routeIs('staff.rooms') ? 'active' : '' }}">Rooms</a>
                             @elseif ($isAdmin)
                                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
                                 <a href="{{ route('rooms.search') }}" class="nav-link {{ request()->routeIs('rooms.search') ? 'active' : '' }}">Search Rooms</a>
-                                <a href="{{ route('reservations.index') }}" class="nav-link {{ request()->routeIs('reservations.index') ? 'active' : '' }}">Manage Bookings</a>
-                                <a href="{{ route('reservations.create') }}" class="nav-link {{ request()->routeIs('reservations.create') ? 'active' : '' }}">New Booking</a>
+                                <a href="{{ route('bookings.index') }}" class="nav-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}">Manage Bookings</a>
+                                <a href="{{ route('bookings.create') }}" class="nav-link {{ request()->routeIs('bookings.create') ? 'active' : '' }}">New Booking</a>
                             @else
                                 <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
                                 <a href="{{ route('customer.search') }}" class="nav-link {{ request()->routeIs('customer.search', 'customer.room.details') ? 'active' : '' }}">Search Rooms</a>
@@ -896,7 +896,7 @@
             <div class="luxury-divider mx-4 sm:mx-6"></div>
 
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 text-sm text-stone-500 sm:px-6 md:flex-row md:items-center md:justify-between">
-                <p>© {{ now()->year }} Aurelia Hotel. All rights reserved.</p>
+                <p>© {{ now()->year }} Aurelia Hotel. All rights booked.</p>
                 <p>Refined hospitality, from search to stay.</p>
             </div>
         </footer>

@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE rooms MODIFY status ENUM('available', 'reserved', 'occupied', 'cleaning', 'maintenance') NOT NULL DEFAULT 'available'");
+            DB::statement("ALTER TABLE rooms MODIFY status ENUM('available', 'booked', 'occupied', 'cleaning', 'maintenance') NOT NULL DEFAULT 'available'");
         }
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     {
         if (DB::getDriverName() === 'mysql') {
             DB::statement("UPDATE rooms SET status = 'maintenance' WHERE status = 'cleaning'");
-            DB::statement("ALTER TABLE rooms MODIFY status ENUM('available', 'reserved', 'occupied', 'maintenance') NOT NULL DEFAULT 'available'");
+            DB::statement("ALTER TABLE rooms MODIFY status ENUM('available', 'booked', 'occupied', 'maintenance') NOT NULL DEFAULT 'available'");
         }
     }
 };

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
@@ -20,7 +20,7 @@ class ReservationCrudTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_user_can_create_reservation(): void
+    public function test_authenticated_user_can_create_booking(): void
     {
         $user = User::factory()->create([
             'role' => 'admin',
@@ -40,7 +40,7 @@ class ReservationCrudTest extends TestCase
             'status' => 'available',
         ]);
 
-        $response = $this->actingAs($user)->post(route('reservations.store'), [
+        $response = $this->actingAs($user)->post(route('bookings.store'), [
             'room_id' => $room->id,
             'guest_name' => 'Lorraine Cuenza',
             'guest_email' => 'lorraine@example.com',
@@ -50,17 +50,17 @@ class ReservationCrudTest extends TestCase
             'special_requests' => 'Near window',
         ]);
 
-        $response->assertRedirect(route('reservations.index'));
+        $response->assertRedirect(route('bookings.index'));
 
-        $this->assertDatabaseHas('reservations', [
+        $this->assertDatabaseHas('bookings', [
             'guest_name' => 'Lorraine Cuenza',
             'guest_email' => 'lorraine@example.com',
             'room_id' => $room->id,
             'status' => 'confirmed',
         ]);
 
-        $reservation = Reservation::first();
-        $this->assertNotNull($reservation);
-        $this->assertEquals('3000.00', $reservation->total_amount);
+        $booking = Booking::first();
+        $this->assertNotNull($booking);
+        $this->assertEquals('3000.00', $booking->total_amount);
     }
 }

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
-class ReservationApiController extends Controller
+class BookingApiController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
@@ -26,7 +26,7 @@ class ReservationApiController extends Controller
         $direction = $validated['direction'] ?? 'desc';
         $perPage = $validated['per_page'] ?? 10;
 
-        $reservations = Reservation::query()
+        $bookings = Booking::query()
             ->with(['room.roomType', 'user'])
             ->when(isset($validated['status']), function ($query) use ($validated) {
                 $query->where('status', $validated['status']);
@@ -46,15 +46,15 @@ class ReservationApiController extends Controller
             ->paginate($perPage)
             ->appends($request->query());
 
-        return response()->json($reservations);
+        return response()->json($bookings);
     }
 
-    public function show(Reservation $reservation): JsonResponse
+    public function show(Booking $book): JsonResponse
     {
-        $reservation->load(['room.roomType', 'user']);
+        $book->load(['room.roomType', 'user']);
 
         return response()->json([
-            'data' => $reservation,
+            'data' => $book,
         ]);
     }
 
@@ -74,28 +74,28 @@ class ReservationApiController extends Controller
         $nights = max(1, Carbon::parse($payload['check_in'])->diffInDays(Carbon::parse($payload['check_out'])));
         $total = $nights * $room->roomType->base_price;
 
-        $reservation = Reservation::create([
+        $book = Booking::create([
             ...$payload,
             'total_amount' => $total,
             'status' => $payload['status'] ?? 'pending',
         ]);
 
-        $room->update(['status' => 'reserved']);
+        $room->update(['status' => 'booked']);
 
-        $reservation->load(['room.roomType', 'user']);
+        $book->load(['room.roomType', 'user']);
 
         return response()->json([
             'message' => 'Booking created successfully.',
-            'data' => $reservation,
+            'data' => $book,
         ], 201);
     }
 
-    public function update(Request $request, Reservation $reservation): JsonResponse
+    public function update(Request $request, Booking $book): JsonResponse
     {
         $payload = $this->validatePayload($request, true);
         $room = Room::with('roomType')->findOrFail($payload['room_id']);
 
-        $this->ensureRoomIsAvailable($payload['room_id'], $payload['check_in'], $payload['check_out'], $reservation->id);
+        $this->ensureRoomIsAvailable($payload['room_id'], $payload['check_in'], $payload['check_out'], $book->id);
 
         if ($payload['guests'] > $room->max_guests) {
             return response()->json([
@@ -106,24 +106,24 @@ class ReservationApiController extends Controller
         $nights = max(1, Carbon::parse($payload['check_in'])->diffInDays(Carbon::parse($payload['check_out'])));
         $total = $nights * $room->roomType->base_price;
 
-        $reservation->update([
+        $book->update([
             ...$payload,
             'total_amount' => $total,
         ]);
 
-        $room->update(['status' => 'reserved']);
+        $room->update(['status' => 'booked']);
 
-        $reservation->load(['room.roomType', 'user']);
+        $book->load(['room.roomType', 'user']);
 
         return response()->json([
             'message' => 'Booking updated successfully.',
-            'data' => $reservation,
+            'data' => $book,
         ]);
     }
 
-    public function destroy(Reservation $reservation): JsonResponse
+    public function destroy(Booking $book): JsonResponse
     {
-        $reservation->delete();
+        $book->delete();
 
         return response()->json([
             'message' => 'Booking deleted successfully.',
@@ -149,12 +149,12 @@ class ReservationApiController extends Controller
         ]);
     }
 
-    private function ensureRoomIsAvailable(int $roomId, string $checkIn, string $checkOut, ?int $ignoreReservationId = null): void
+    private function ensureRoomIsAvailable(int $roomId, string $checkIn, string $checkOut, ?int $ignoreBookingId = null): void
     {
-        $hasConflict = Reservation::query()
+        $hasConflict = Booking::query()
             ->where('room_id', $roomId)
-            ->when($ignoreReservationId, function ($query) use ($ignoreReservationId) {
-                $query->where('id', '!=', $ignoreReservationId);
+            ->when($ignoreBookingId, function ($query) use ($ignoreBookingId) {
+                $query->where('id', '!=', $ignoreBookingId);
             })
             ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
             ->where('check_in', '<', $checkOut)

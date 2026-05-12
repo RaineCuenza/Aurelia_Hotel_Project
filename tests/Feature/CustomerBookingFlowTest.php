@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
@@ -41,7 +41,7 @@ class CustomerBookingFlowTest extends TestCase
 
         $room = $this->createAvailableRoom('101');
 
-        Reservation::create([
+        Booking::create([
             'room_id' => $room->id,
             'guest_name' => 'Existing Guest',
             'guest_email' => 'existing@example.com',
@@ -83,7 +83,7 @@ class CustomerBookingFlowTest extends TestCase
 
         $room = $this->createAvailableRoom('201');
 
-        Reservation::create([
+        Booking::create([
             'room_id' => $room->id,
             'guest_name' => 'Current Guest',
             'guest_email' => 'current@example.com',
@@ -106,7 +106,7 @@ class CustomerBookingFlowTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('check_in');
-        $this->assertEquals(1, Reservation::count());
+        $this->assertEquals(1, Booking::count());
     }
 
     public function test_customer_booking_allows_back_to_back_dates(): void
@@ -125,7 +125,7 @@ class CustomerBookingFlowTest extends TestCase
 
         $room = $this->createAvailableRoom('202');
 
-        Reservation::create([
+        Booking::create([
             'room_id' => $room->id,
             'guest_name' => 'Current Guest',
             'guest_email' => 'current2@example.com',
@@ -151,22 +151,22 @@ class CustomerBookingFlowTest extends TestCase
         ]);
 
         $response->assertSessionHasNoErrors();
-        $reservation = Reservation::where('guest_email', 'backtoback@example.com')->first();
+        $booking = Booking::where('guest_email', 'backtoback@example.com')->first();
 
-        $this->assertNotNull($reservation);
-        $response->assertRedirect(route('customer.booking.payment', $reservation));
-        $this->assertSame('pending', $reservation->status);
-        $this->assertSame('pending', $reservation->payment_status);
-        $this->assertEquals(2, Reservation::count());
-        $this->assertSame('reserved', $room->fresh()->status);
+        $this->assertNotNull($booking);
+        $response->assertRedirect(route('customer.booking.payment', $booking));
+        $this->assertSame('pending', $booking->status);
+        $this->assertSame('pending', $booking->payment_status);
+        $this->assertEquals(2, Booking::count());
+        $this->assertSame('booked', $room->fresh()->status);
     }
 
-    public function test_reserved_room_does_not_appear_in_search_results(): void
+    public function test_booked_room_does_not_appear_in_search_results(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-04-10'));
 
         $room = $this->createAvailableRoom('203');
-        $room->update(['status' => 'reserved']);
+        $room->update(['status' => 'booked']);
 
         $response = $this->get(route('customer.search', [
             'check_in' => '2026-04-11',
@@ -204,19 +204,19 @@ class CustomerBookingFlowTest extends TestCase
             'special_requests' => null,
         ]);
 
-        $reservation = Reservation::where('guest_email', 'paying.customer@example.com')->first();
+        $booking = Booking::where('guest_email', 'paying.customer@example.com')->first();
 
-        $this->assertNotNull($reservation);
-        $bookingResponse->assertRedirect(route('customer.booking.payment', $reservation));
+        $this->assertNotNull($booking);
+        $bookingResponse->assertRedirect(route('customer.booking.payment', $booking));
 
-        $paymentResponse = $this->actingAs($customer)->post(route('customer.booking.payment.process', $reservation), [
+        $paymentResponse = $this->actingAs($customer)->post(route('customer.booking.payment.process', $booking), [
             'outcome' => 'success',
         ]);
 
-        $paymentResponse->assertRedirect(route('customer.booking.confirmation', $reservation));
-        $this->assertSame('confirmed', $reservation->fresh()->status);
-        $this->assertSame('paid', $reservation->fresh()->payment_status);
-        $this->assertSame('reserved', $room->fresh()->status);
+        $paymentResponse->assertRedirect(route('customer.booking.confirmation', $booking));
+        $this->assertSame('confirmed', $booking->fresh()->status);
+        $this->assertSame('paid', $booking->fresh()->payment_status);
+        $this->assertSame('booked', $room->fresh()->status);
     }
 
     private function createAvailableRoom(string $roomNumber): Room

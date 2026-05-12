@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reservations', function (Blueprint $table) {
+        Schema::table('bookings', function (Blueprint $table) {
             $table->string('payment_status', 20)
                 ->default('unpaid')
                 ->after('status')
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reservations', function (Blueprint $table) {
+        Schema::table('bookings', function (Blueprint $table) {
             $table->dropColumn([
                 'payment_status',
                 'payment_reference',

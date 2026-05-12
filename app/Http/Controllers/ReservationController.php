@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
+use App\Models\Book;
 use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ class ReservationController extends Controller
      */
     public function index(Request $request)
     {
-        $reservations = Reservation::with(['room.roomType', 'user'])
+        $books = Book::with(['room.roomType', 'user'])
             ->when($request->filled('status'), function ($query) use ($request) {
                 $query->where('status', $request->string('status'));
             })
@@ -35,7 +35,7 @@ class ReservationController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('reservations.index', compact('reservations'));
+        return view('books.index', compact('books'));
     }
 
     /**
@@ -48,7 +48,7 @@ class ReservationController extends Controller
             ->orderBy('room_number')
             ->get();
 
-        return view('reservations.create', compact('rooms'));
+        return view('books.create', compact('rooms'));
     }
 
     /**
@@ -64,7 +64,7 @@ class ReservationController extends Controller
             $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
             $total = $nights * $room->roomType->base_price;
 
-            Reservation::create([
+            Book::create([
                 ...$validated,
                 'user_id' => $request->user()?->id,
                 'guests' => $validated['guests'] ?? 1,
@@ -76,96 +76,96 @@ class ReservationController extends Controller
                 'payment_paid_at' => now(),
             ]);
 
-            $room->update(['status' => 'reserved']);
+            $room->update(['status' => 'booked']);
         });
 
-        return redirect()->route('reservations.index')->with('success', 'Booking created successfully.');
+        return redirect()->route('books.index')->with('success', 'Booking created successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Reservation $reservation)
+    public function show(Book $book)
     {
-        $reservation->load('room.roomType');
+        $book->load('room.roomType');
 
-        return view('reservations.show', compact('reservation'));
+        return view('books.show', compact('book'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Reservation $reservation)
+    public function edit(Book $book)
     {
         $rooms = Room::with('roomType')
             ->where('status', 'available')
-            ->orWhere('id', $reservation->room_id)
+            ->orWhere('id', $book->room_id)
             ->orderBy('room_number')
             ->get();
 
-        return view('reservations.edit', compact('reservation', 'rooms'));
+        return view('books.edit', compact('book', 'rooms'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Reservation $reservation)
+    public function update(Request $request, Book $book)
     {
         $validated = $this->validateReservation($request, true);
         $room = Room::with('roomType')->findOrFail($validated['room_id']);
-        $this->ensureRoomIsAvailable($room, $validated['check_in'], $validated['check_out'], $reservation->id, $reservation->room_id);
+        $this->ensureRoomIsAvailable($room, $validated['check_in'], $validated['check_out'], $book->id, $book->room_id);
 
         $nights = max(1, Carbon::parse($validated['check_in'])->diffInDays(Carbon::parse($validated['check_out'])));
         $total = $nights * $room->roomType->base_price;
 
-        $reservation->update([
+        $book->update([
             ...$validated,
-            'guests' => $validated['guests'] ?? $reservation->guests,
-            'guest_phone' => $validated['guest_phone'] ?? $reservation->guest_phone,
-            'status' => $validated['status'] ?? $reservation->status,
+            'guests' => $validated['guests'] ?? $book->guests,
+            'guest_phone' => $validated['guest_phone'] ?? $book->guest_phone,
+            'status' => $validated['status'] ?? $book->status,
             'total_amount' => $total,
         ]);
 
-        return redirect()->route('reservations.index')->with('success', 'Booking updated successfully.');
+        return redirect()->route('books.index')->with('success', 'Booking updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Reservation $reservation)
+    public function destroy(Book $book)
     {
-        $reservation->delete();
+        $book->delete();
 
-        return redirect()->route('reservations.index')->with('success', 'Booking deleted successfully.');
+        return redirect()->route('books.index')->with('success', 'Booking deleted successfully.');
     }
 
-    public function updateStatus(Request $request, Reservation $reservation)
+    public function updateStatus(Request $request, Book $book)
     {
         $validated = $request->validate([
             'status' => ['required', 'in:confirmed,cancelled'],
         ]);
 
-        $reservation->update([
+        $book->update([
             'status' => $validated['status'],
         ]);
 
         if ($validated['status'] === 'cancelled') {
-            $reservation->room()->update(['status' => 'available']);
+            $book->room()->update(['status' => 'available']);
         }
 
-        return redirect()->route('reservations.index')->with('success', 'Booking status updated successfully.');
+        return redirect()->route('books.index')->with('success', 'Booking status updated successfully.');
     }
 
     public function summary(Request $request)
     {
-        $reservation = Reservation::with('room.roomType')
+        $book = Book::with('room.roomType')
             ->when($request->user(), function ($query) use ($request) {
                 $query->where('user_id', $request->user()->id);
             })
             ->latest()
             ->first();
 
-        return view('reservations.summary', compact('reservation'));
+        return view('books.summary', compact('book'));
     }
 
     private function validateReservation(Request $request, bool $isUpdate = false): array

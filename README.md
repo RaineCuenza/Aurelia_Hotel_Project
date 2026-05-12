@@ -61,4 +61,61 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 
 
+## Project Analysis Summary 
+
+This summary is a factual extraction from the project's migrations, models, controllers, routes, and seeders. It contains only information explicitly defined in code.
+
+System Summary
+- Purpose: a room booking/reservation system with customer booking flows, staff/admin back-office, and JSON API.
+- Primary models: `User`, `RoomType`, `Room`, `Reservation`.
+
+User Roles and Permissions
+- Roles (DB enum): `admin`, `staff`, `customer`.
+- Role enforcement: `App\\Http\\Middleware\\EnsureUserRole` (routes use middleware alias `role`).
+
+Implemented Features
+- Authentication: register, login, logout, email verification (`AuthController`).
+- Customer booking flow: search, room details, booking form, booking creation, mock payment, confirmation, history (`CustomerController`).
+- Reservation management (admin/staff): CRUD, status updates (`ReservationController`).
+- Staff operations: check-in, check-out, mark room clean (`StaffController`).
+- Admin dashboard metrics (`DashboardController`).
+- APIs for rooms and reservations (`app/Http/Controllers/Api`).
+
+Database Structure (tables overview)
+- `users`: id, first_name, last_name, email (unique), phone (nullable), role (enum), email_verified_at, password, remember_token, timestamps.
+- `room_types`: id, name, slug, description, base_price, timestamps.
+- `rooms`: id, room_type_id (FK), room_number (unique), max_guests, status (enum), timestamps.
+- `reservations`: id, user_id (nullable FK), room_id (FK), guest_name, guest_email, guest_phone, check_in, check_out, guests, special_requests, status (enum), total_amount, payment fields, timestamps.
+- Support tables: `password_reset_tokens`, `sessions`, `cache`, `cache_locks` (see migrations for exact columns).
+
+Relationships
+- `RoomType` 1 -> * `Room`.
+- `Room` 1 -> * `Reservation`.
+- `User` 1 -> * `Reservation`.
+- Foreign keys: `rooms.room_type_id` -> `room_types.id`; `reservations.room_id` -> `rooms.id`; `reservations.user_id` -> `users.id` (nullable, nullOnDelete).
+
+Business Logic (explicit rules)
+- Room statuses: `available`, `booked`, `occupied`, `cleaning`, `maintenance`.
+- Reservation statuses: `pending`, `confirmed`, `checked_in`, `checked_out`, `cancelled`.
+- Customer booking: creates `pending` reservation with `payment_status = pending`, `payment_reference` mock, `payment_expires_at = now()+15min`, room -> `booked`.
+- Admin/staff-created booking: created as `confirmed` and `paid` with `manual_frontdesk` payment.
+- Mock payments: `processMockPayment` sets `paid`/`failed`/`expired` and updates reservation and room accordingly.
+- Check-in: allowed only when `status === 'confirmed'` and `payment_status === 'paid'` (reservation -> `checked_in`, room -> `occupied`).
+- Check-out: allowed only when `status === 'checked_in'` (reservation -> `checked_out`, room -> `cleaning`).
+- Availability checks use date-overlap logic and consider pending payments with `payment_expires_at`.
+
+Key Routes (high-level)
+- Customer: `/home`, `/rooms`, `/rooms/{room}`, `/book/{room}`, booking payment/confirmation, `/my-bookings`.
+- Staff/Admin: `/staff/*` (dashboard, reservations, checkin/checkout, rooms), `/dashboard` (admin), reservation management under `/reservations`.
+- API: `/api/rooms`, `/api/reservations`.
+
+Inconsistencies / Issues (present in code)
+- `Reservation` and `User` define `protected function casts(): array` instead of the standard `protected $casts` property; Eloquent may not apply these casts.
+- Migration default for `payment_status` (`unpaid`) differs from controller usage (`pending`).
+- `EnsureUserRole` middleware class exists but I did not find its alias registration in inspected files (e.g., `app/Http/Kernel.php` was not found in scanned files).
+
+For details see controllers (`app/Http/Controllers`), models (`app/Models`), migrations (`database/migrations`), and seeders (`database/seeders`).
+
+
+
 

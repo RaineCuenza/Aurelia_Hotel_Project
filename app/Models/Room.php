@@ -20,8 +20,8 @@ class Room extends Model
         return $this->belongsTo(RoomType::class);
     }
 
-    public function reservations(): HasMany
+    public function bookings(): HasMany
     {
-        return $this->hasMany(Reservation::class);
+        return $this->hasMany(Booking::class);
     }
 }

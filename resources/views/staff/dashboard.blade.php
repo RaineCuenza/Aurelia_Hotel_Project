@@ -51,7 +51,7 @@
             color: #0c4a6e;
         }
 
-        .stat-color-reserved {
+        .stat-color-booked {
             color: #92400e;
         }
 
@@ -185,7 +185,7 @@
             <div class="glass-panel stat-card">
                 <div>
                     <p class="stat-label">Booked</p>
-                    <p class="stat-value mt-2 stat-color-reserved">{{ $reservedRooms }}</p>
+                    <p class="stat-value mt-2 stat-color-booked">{{ $bookedRooms }}</p>
                 </div>
             </div>
 
@@ -270,7 +270,7 @@
             <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 @forelse ($roomStatus as $room)
                     @php
-                        $roomStatusLabel = $room->status === 'reserved' ? 'Booked' : ucfirst($room->status);
+                        $roomStatusLabel = $room->status === 'booked' ? 'Booked' : ucfirst($room->status);
                     @endphp
                     <div class="border rounded-lg p-3 {{ $room->status === 'available' ? 'bg-green-50 border-green-300' : ($room->status === 'occupied' ? 'bg-blue-50 border-blue-300' : 'bg-orange-50 border-orange-300') }}">
                         <div class="flex justify-between items-center">

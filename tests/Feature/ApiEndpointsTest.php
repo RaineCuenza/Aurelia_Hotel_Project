@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,11 +41,11 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('data.0.room_number', '101');
     }
 
-    public function test_can_create_reservation_via_api(): void
+    public function test_can_create_booking_via_api(): void
     {
         $room = $this->createRoom();
 
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/bookings', [
             'room_id' => $room->id,
             'guest_name' => 'API Guest',
             'guest_email' => 'api.guest@example.com',
@@ -60,18 +60,18 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('data.guest_name', 'API Guest')
             ->assertJsonPath('data.total_amount', '3000.00');
 
-        $this->assertDatabaseHas('reservations', [
+        $this->assertDatabaseHas('bookings', [
             'guest_name' => 'API Guest',
             'room_id' => $room->id,
             'status' => 'pending',
         ]);
     }
 
-    public function test_can_update_and_delete_reservation_via_api(): void
+    public function test_can_update_and_delete_booking_via_api(): void
     {
         $room = $this->createRoom();
 
-        $reservation = Reservation::create([
+        $booking = Booking::create([
             'room_id' => $room->id,
             'guest_name' => 'Update Me',
             'guest_email' => 'update.me@example.com',
@@ -83,7 +83,7 @@ class ApiEndpointsTest extends TestCase
             'total_amount' => 1500,
         ]);
 
-        $updateResponse = $this->putJson('/api/reservations/'.$reservation->id, [
+        $updateResponse = $this->putJson('/api/bookings/'.$booking->id, [
             'room_id' => $room->id,
             'guest_name' => 'Updated Guest',
             'guest_email' => 'updated@example.com',
@@ -99,19 +99,19 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('data.guest_name', 'Updated Guest')
             ->assertJsonPath('data.status', 'confirmed');
 
-        $this->assertDatabaseHas('reservations', [
-            'id' => $reservation->id,
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
             'guest_name' => 'Updated Guest',
             'status' => 'confirmed',
         ]);
 
-        $deleteResponse = $this->deleteJson('/api/reservations/'.$reservation->id);
+        $deleteResponse = $this->deleteJson('/api/bookings/'.$booking->id);
 
         $deleteResponse->assertOk()
             ->assertJsonPath('message', 'Booking deleted successfully.');
 
-        $this->assertDatabaseMissing('reservations', [
-            'id' => $reservation->id,
+        $this->assertDatabaseMissing('bookings', [
+            'id' => $booking->id,
         ]);
     }
 

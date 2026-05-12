@@ -38,7 +38,7 @@
                 <p class="mt-3 text-lg font-bold text-amber-700">PHP {{ number_format($room->roomType->base_price, 2) }} / night</p>
 
                 @if ($canBook)
-                    <a href="{{ route('reservations.create', ['room_id' => $room->id]) }}"
+                    <a href="{{ route('bookings.create', ['room_id' => $room->id]) }}"
                         class="btn-primary mt-4 inline-block px-3 py-2 text-sm">
                         Book Room
                     </a>

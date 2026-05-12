@@ -103,7 +103,7 @@
 
     <div class="confirm-shell">
         @php
-            $isPaid = $reservation->payment_status === 'paid';
+            $isPaid = $book->payment_status === 'paid';
         @endphp
 
         <div class="confirmed-badge {{ $isPaid ? 'is-confirmed' : 'is-pending' }}">
@@ -126,7 +126,7 @@
         @if (! $isPaid)
             <div class="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 Payment is still pending for this booking.
-                <a href="{{ route('customer.booking.payment', $reservation) }}" class="font-semibold underline">Continue payment</a>
+                <a href="{{ route('customer.booking.payment', $book) }}" class="font-semibold underline">Continue payment</a>
                 before the payment window expires.
             </div>
         @endif
@@ -134,31 +134,31 @@
         <div class="card mt-5 grid gap-4 md:grid-cols-2">
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Guest Name</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->guest_name }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ $book->guest_name }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Room</p>
-                <p class="mt-1 font-semibold text-stone-900">Room {{ $reservation->room->room_number }} • {{ $reservation->room->roomType->name }}</p>
+                <p class="mt-1 font-semibold text-stone-900">Room {{ $book->room->room_number }} • {{ $book->room->roomType->name }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Check-In</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->check_in->format('M d, Y') }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ $book->check_in->format('M d, Y') }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Check-Out</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->check_out->format('M d, Y') }}</p>
+                <p class="mt-1 font-semibold text-stone-900">{{ $book->check_out->format('M d, Y') }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Status</p>
-                <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $reservation->status) }}</p>
+                <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $book->status) }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Payment Status</p>
-                <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $reservation->payment_status ?? 'unpaid') }}</p>
+                <p class="mt-1 font-semibold capitalize text-stone-900">{{ str_replace('_', ' ', $book->payment_status ?? 'unpaid') }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Total Price</p>
-                <p class="mt-1 text-xl font-bold text-amber-800">PHP {{ number_format((float) $reservation->total_amount, 2) }}</p>
+                <p class="mt-1 text-xl font-bold text-amber-800">PHP {{ number_format((float) $book->total_amount, 2) }}</p>
             </div>
         </div>
 

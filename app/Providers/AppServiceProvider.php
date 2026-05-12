@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Reservation;
+use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -53,11 +53,11 @@ class AppServiceProvider extends ServiceProvider
             };
 
             if ($user->role === 'admin') {
-                $pending = Reservation::where('status', 'pending')->count();
-                $arrivalsToday = Reservation::whereDate('check_in', $today)
+                $pending = Booking::where('status', 'pending')->count();
+                $arrivalsToday = Booking::whereDate('check_in', $today)
                     ->whereIn('status', ['pending', 'confirmed'])
                     ->count();
-                $checkoutsToday = Reservation::whereDate('check_out', $today)
+                $checkoutsToday = Booking::whereDate('check_out', $today)
                     ->where('status', 'checked_in')
                     ->count();
                 $roomsCleaning = Room::where('status', 'cleaning')->count();
@@ -65,18 +65,18 @@ class AppServiceProvider extends ServiceProvider
                 if ($pending > 0) {
                     $items[] = $buildItem(
                         $pending.' booking(s) pending approval',
-                        route('reservations.index'),
+                        route('bookings.index'),
                         'warn',
-                        Reservation::where('status', 'pending')->latest('updated_at')->value('updated_at')
+                        Booking::where('status', 'pending')->latest('updated_at')->value('updated_at')
                     );
                 }
 
                 if ($arrivalsToday > 0) {
                     $items[] = $buildItem(
                         $arrivalsToday.' arrival(s) scheduled today',
-                        route('reservations.index'),
+                        route('bookings.index'),
                         'info',
-                        Reservation::whereDate('check_in', $today)
+                        Booking::whereDate('check_in', $today)
                             ->whereIn('status', ['pending', 'confirmed'])
                             ->latest('updated_at')
                             ->value('updated_at')
@@ -86,9 +86,9 @@ class AppServiceProvider extends ServiceProvider
                 if ($checkoutsToday > 0) {
                     $items[] = $buildItem(
                         $checkoutsToday.' check-out(s) due today',
-                        route('reservations.index'),
+                        route('bookings.index'),
                         'info',
-                        Reservation::whereDate('check_out', $today)
+                        Booking::whereDate('check_out', $today)
                             ->where('status', 'checked_in')
                             ->latest('updated_at')
                             ->value('updated_at')
@@ -104,11 +104,11 @@ class AppServiceProvider extends ServiceProvider
                     );
                 }
             } elseif ($user->role === 'staff') {
-                $checkinsToday = Reservation::whereDate('check_in', $today)
+                $checkinsToday = Booking::whereDate('check_in', $today)
                     ->where('status', 'confirmed')
                     ->where('payment_status', 'paid')
                     ->count();
-                $checkoutsToday = Reservation::whereDate('check_out', $today)
+                $checkoutsToday = Booking::whereDate('check_out', $today)
                     ->where('status', 'checked_in')
                     ->count();
                 $roomsCleaning = Room::where('status', 'cleaning')->count();
@@ -116,9 +116,9 @@ class AppServiceProvider extends ServiceProvider
                 if ($checkinsToday > 0) {
                     $items[] = $buildItem(
                         $checkinsToday.' guest(s) ready for check-in',
-                        route('staff.reservations'),
+                        route('staff.bookings'),
                         'info',
-                        Reservation::whereDate('check_in', $today)
+                        Booking::whereDate('check_in', $today)
                             ->where('status', 'confirmed')
                             ->where('payment_status', 'paid')
                             ->latest('updated_at')
@@ -129,9 +129,9 @@ class AppServiceProvider extends ServiceProvider
                 if ($checkoutsToday > 0) {
                     $items[] = $buildItem(
                         $checkoutsToday.' guest(s) due for check-out',
-                        route('staff.reservations'),
+                        route('staff.bookings'),
                         'warn',
-                        Reservation::whereDate('check_out', $today)
+                        Booking::whereDate('check_out', $today)
                             ->where('status', 'checked_in')
                             ->latest('updated_at')
                             ->value('updated_at')
@@ -147,12 +147,12 @@ class AppServiceProvider extends ServiceProvider
                     );
                 }
             } elseif ($user->role === 'customer') {
-                $upcoming = Reservation::where('user_id', $user->id)
+                $upcoming = Booking::where('user_id', $user->id)
                     ->whereDate('check_in', '>=', $today)
                     ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
                     ->count();
 
-                $confirmedRecent = Reservation::where('user_id', $user->id)
+                $confirmedRecent = Booking::where('user_id', $user->id)
                     ->where('status', 'confirmed')
                     ->where('created_at', '>=', now()->subDay())
                     ->count();
@@ -162,7 +162,7 @@ class AppServiceProvider extends ServiceProvider
                         'You have '.$upcoming.' upcoming booking(s)',
                         route('customer.history'),
                         'info',
-                        Reservation::where('user_id', $user->id)
+                        Booking::where('user_id', $user->id)
                             ->whereDate('check_in', '>=', $today)
                             ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
                             ->latest('updated_at')
@@ -175,7 +175,7 @@ class AppServiceProvider extends ServiceProvider
                         $confirmedRecent.' booking(s) recently confirmed',
                         route('customer.history'),
                         'success',
-                        Reservation::where('user_id', $user->id)
+                        Booking::where('user_id', $user->id)
                             ->where('status', 'confirmed')
                             ->where('created_at', '>=', now()->subDay())
                             ->latest('updated_at')

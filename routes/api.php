@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\ReservationApiController;
+use App\Http\Controllers\Api\BookingApiController;
 use App\Http\Controllers\Api\RoomApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/rooms', [RoomApiController::class, 'index'])->name('api.rooms.index');
 Route::get('/rooms/{room}', [RoomApiController::class, 'show'])->name('api.rooms.show');
 
-Route::get('/reservations', [ReservationApiController::class, 'index'])->name('api.reservations.index');
-Route::post('/reservations', [ReservationApiController::class, 'store'])->name('api.reservations.store');
-Route::get('/reservations/{reservation}', [ReservationApiController::class, 'show'])->name('api.reservations.show');
-Route::match(['put', 'patch'], '/reservations/{reservation}', [ReservationApiController::class, 'update'])->name('api.reservations.update');
-Route::delete('/reservations/{reservation}', [ReservationApiController::class, 'destroy'])->name('api.reservations.destroy');
+Route::get('/bookings', [BookingApiController::class, 'index'])->name('api.bookings.index');
+Route::post('/bookings', [BookingApiController::class, 'store'])->name('api.bookings.store');
+Route::get('/bookings/{book}', [BookingApiController::class, 'show'])->name('api.bookings.show');
+Route::match(['put', 'patch'], '/bookings/{book}', [BookingApiController::class, 'update'])->name('api.bookings.update');
+Route::delete('/bookings/{book}', [BookingApiController::class, 'destroy'])->name('api.bookings.destroy');
