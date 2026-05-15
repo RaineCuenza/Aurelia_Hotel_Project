@@ -46,7 +46,7 @@
     <div class="payment-shell">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-                <h1 class="section-title text-4xl font-bold text-stone-900">Mock Payment</h1>
+                <h1 class="section-title text-4xl font-bold text-stone-900">Payment</h1>
                 <p class="mt-1 text-sm text-stone-600">This is a sandbox payment step for your booking flow.</p>
             </div>
             <a href="{{ route('customer.history') }}" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50">Back to My Bookings</a>

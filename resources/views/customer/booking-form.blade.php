@@ -109,7 +109,7 @@
                 </div>
 
                 @if ($room->status === 'available')
-                    <button type="submit" class="btn-gold">Continue to Mock Payment</button>
+                    <button type="submit" class="btn-gold">Continue to Payment</button>
                 @endif
             </form>
 
