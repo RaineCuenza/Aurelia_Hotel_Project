@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Room;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Bus\Queueable;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification as BaseNotification;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -87,7 +91,7 @@ class BookingController extends Controller
      */
     public function show(Booking $book)
     {
-        $book->load('room.roomType');
+        $book->load(['room.roomType', 'cancelledBy']);
 
         return view('bookings.show', compact('book'));
     }
@@ -97,6 +101,11 @@ class BookingController extends Controller
      */
     public function edit(Booking $book)
     {
+        if ($book->status === 'cancelled') {
+            return redirect()->route('bookings.index')
+                ->with('error', 'Cancelled bookings cannot be edited.');
+        }
+
         $rooms = Room::with('roomType')
             ->where('status', 'available')
             ->orWhere('id', $book->room_id)
@@ -111,6 +120,11 @@ class BookingController extends Controller
      */
     public function update(Request $request, Booking $book)
     {
+        if ($book->status === 'cancelled') {
+            return redirect()->route('bookings.index')
+                ->with('error', 'Cancelled bookings cannot be edited.');
+        }
+
         $validated = $this->validateBooking($request, true);
         $room = Room::with('roomType')->findOrFail($validated['room_id']);
         $this->ensureRoomIsAvailable($room, $validated['check_in'], $validated['check_out'], $book->id, $book->room_id);
@@ -142,18 +156,109 @@ class BookingController extends Controller
     public function updateStatus(Request $request, Booking $book)
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:confirmed,cancelled'],
+            'status' => ['required', 'in:confirmed'],
         ]);
+
+        if ($book->status !== 'pending') {
+            return redirect()->back()->with('error', 'Only pending bookings can be approved.');
+        }
 
         $book->update([
             'status' => $validated['status'],
         ]);
 
-        if ($validated['status'] === 'cancelled') {
-            $book->room()->update(['status' => 'available']);
+        return redirect()->route('bookings.index')->with('success', 'Booking status updated successfully.');
+    }
+
+    public function cancel(Request $request, Booking $book)
+    {
+        $validated = $request->validate([
+            'cancellation_reason' => ['required', 'string', 'min:10', 'max:1000'],
+            'room_status' => ['required', 'in:available,maintenance'],
+            'notify_customer' => ['nullable', 'boolean'],
+            'allow_checked_in_cancellation' => ['nullable', 'boolean'],
+        ]);
+
+        if ($book->status === 'checked_out') {
+            return redirect()->back()->with('error', 'Checked-out bookings cannot be cancelled.');
         }
 
-        return redirect()->route('bookings.index')->with('success', 'Booking status updated successfully.');
+        if ($book->status === 'checked_in' && ! $request->boolean('allow_checked_in_cancellation')) {
+            return back()
+                ->withErrors([
+                    'allow_checked_in_cancellation' => 'Checked-in bookings require explicit approval before cancellation.',
+                ])
+                ->withInput();
+        }
+
+        $cancelledBook = DB::transaction(function () use ($book, $validated, $request) {
+            $lockedBook = Booking::with('room.roomType', 'cancelledBy')->lockForUpdate()->findOrFail($book->id);
+
+            if ($lockedBook->status === 'checked_out') {
+                throw ValidationException::withMessages([
+                    'cancellation_reason' => 'Checked-out bookings cannot be cancelled.',
+                ]);
+            }
+
+            if ($lockedBook->status === 'checked_in' && ! $request->boolean('allow_checked_in_cancellation')) {
+                throw ValidationException::withMessages([
+                    'allow_checked_in_cancellation' => 'Checked-in bookings require explicit approval before cancellation.',
+                ]);
+            }
+
+            $lockedBook->update([
+                'status' => 'cancelled',
+                'cancellation_reason' => $validated['cancellation_reason'],
+                'cancelled_by' => $request->user()->id,
+                'cancelled_at' => now(),
+            ]);
+
+            $lockedBook->room->update([
+                'status' => $validated['room_status'],
+            ]);
+
+            return $lockedBook->fresh(['room.roomType', 'cancelledBy']);
+        });
+
+        if ($request->boolean('notify_customer')) {
+            Notification::route('mail', $cancelledBook->guest_email)
+                ->notify(new class($cancelledBook) extends BaseNotification
+                {
+                    use Queueable;
+
+                    public function __construct(private readonly Booking $booking)
+                    {
+                    }
+
+                    /**
+                     * @return array<int, string>
+                     */
+                    public function via(object $notifiable): array
+                    {
+                        return ['mail'];
+                    }
+
+                    public function toMail(object $notifiable): MailMessage
+                    {
+                        $booking = $this->booking->loadMissing('room.roomType', 'cancelledBy');
+
+                        return (new MailMessage)
+                            ->subject('Your booking was cancelled')
+                            ->greeting('Hello '.$booking->guest_name.',')
+                            ->line('Your booking for Room '.$booking->room->room_number.' has been cancelled.')
+                            ->line('Check-in: '.Carbon::parse($booking->check_in)->format('M d, Y'))
+                            ->line('Check-out: '.Carbon::parse($booking->check_out)->format('M d, Y'))
+                            ->line('Cancellation reason: '.$booking->cancellation_reason)
+                            ->line('Cancelled on: '.optional($booking->cancelled_at)->format('M d, Y h:i A'))
+                            ->lineIf($booking->cancelledBy !== null, 'Cancelled by: '.$booking->cancelledBy->name)
+                            ->line('If you need help, please contact the front desk or create a new booking for a future stay.');
+                    }
+                });
+        }
+
+        return redirect()
+            ->route('bookings.index')
+            ->with('success', 'Booking cancelled successfully and the customer has been notified.');
     }
 
     public function summary(Request $request)

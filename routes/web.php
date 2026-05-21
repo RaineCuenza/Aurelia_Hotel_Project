@@ -111,6 +111,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/bookings/{book}/status', [BookingController::class, 'updateStatus'])
         ->middleware('role:admin,staff')
         ->name('bookings.status');
+    Route::patch('/bookings/{book}/cancel', [BookingController::class, 'cancel'])
+        ->middleware('role:admin,staff')
+        ->name('bookings.cancel');
     Route::match(['put', 'patch'], '/bookings/{book}', [BookingController::class, 'update'])
         ->middleware('role:admin,staff')
         ->name('bookings.update');

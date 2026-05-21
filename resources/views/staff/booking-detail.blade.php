@@ -176,6 +176,26 @@
             </div>
         </div>
 
+        @if ($book->status === 'cancelled')
+            <div class="glass-panel p-5 sm:p-6 mb-6 border border-rose-200 bg-rose-50/70">
+                <h2 class="text-2xl font-bold text-rose-900 mb-4">Cancellation Notice</h2>
+                <div class="detail-grid">
+                    <div class="detail-item bg-white">
+                        <p class="detail-label">Cancellation Reason</p>
+                        <p class="detail-value text-base">{{ $book->cancellation_reason }}</p>
+                    </div>
+                    <div class="detail-item bg-white">
+                        <p class="detail-label">Cancelled On</p>
+                        <p class="detail-value text-base">{{ optional($book->cancelled_at)->format('M d, Y h:i A') }}</p>
+                    </div>
+                    <div class="detail-item bg-white">
+                        <p class="detail-label">Cancelled By</p>
+                        <p class="detail-value text-base">{{ $book->cancelledBy?->name ?? 'System' }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Actions -->
         @if ($book->status === 'confirmed' && $book->payment_status === 'paid')
             <div class="glass-panel p-5 sm:p-6">
@@ -202,5 +222,13 @@
                 <p class="text-gray-600">This booking has been completed.</p>
             </div>
         @endif
+
+        @if (! in_array($book->status, ['cancelled', 'checked_out'], true))
+            <div class="mt-4">
+                <button type="button" class="action-btn" style="background: #dc2626; color: #fff;" data-open-booking-cancel-modal="booking-cancel-modal-{{ $book->id }}">Cancel Booking</button>
+            </div>
+        @endif
     </div>
+
+    @include('bookings.partials.cancel-modal', ['book' => $book])
 @endsection

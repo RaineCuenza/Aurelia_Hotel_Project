@@ -237,8 +237,8 @@
             </article>
             <article class="metric-box">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Premium Rooms</p>
-                <p class="mt-1 text-3xl font-bold text-amber-800">{{ $featuredRoomTypes->sum('rooms_count') }}</p>
-                <p class="text-xs text-stone-600">Carefully curated units</p>
+                <p class="mt-1 text-3xl font-bold text-amber-800">{{ $featuredRoomTypes->sum('available_rooms_count') }}</p>
+                <p class="text-xs text-stone-600">Still open for booking</p>
             </article>
             <article class="metric-box">
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Customer Care</p>
@@ -260,7 +260,9 @@
         <div class="grid gap-4 md:grid-cols-3">
             @foreach ($featuredRoomTypes as $type)
                 <article class="feature-card">
-                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">{{ $type->rooms_count }} rooms</p>
+                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">
+                        {{ $type->available_rooms_count }} {{ $type->available_rooms_count === 1 ? 'room' : 'rooms' }} left
+                    </p>
                     <h3 class="section-title mt-2 text-3xl font-semibold text-stone-900">{{ $type->name }}</h3>
                     <p class="mt-2 line-clamp-3 text-sm text-stone-600">{{ $type->description ?: 'Elegant accommodation tailored for comfort and convenience.' }}</p>
                     <p class="mt-4 text-lg font-bold text-amber-800">PHP {{ number_format((float) $type->base_price, 2) }} / night</p>

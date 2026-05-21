@@ -178,6 +178,35 @@ class CustomerBookingFlowTest extends TestCase
         $response->assertDontSee('Room 203');
     }
 
+    public function test_home_featured_room_types_show_remaining_available_rooms(): void
+    {
+        $roomType = RoomType::create([
+            'name' => 'Standard',
+            'slug' => 'standard-featured',
+            'description' => 'Standard room',
+            'base_price' => 1500,
+        ]);
+
+        Room::create([
+            'room_type_id' => $roomType->id,
+            'room_number' => '301',
+            'max_guests' => 2,
+            'status' => 'available',
+        ]);
+
+        Room::create([
+            'room_type_id' => $roomType->id,
+            'room_number' => '302',
+            'max_guests' => 2,
+            'status' => 'booked',
+        ]);
+
+        $response = $this->get(route('customer.home'));
+
+        $response->assertOk();
+        $response->assertSee('1 room left');
+    }
+
     public function test_mock_payment_success_confirms_booking(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-04-10 10:00:00'));

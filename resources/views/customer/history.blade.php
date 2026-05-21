@@ -33,6 +33,20 @@
         .status-checked_out { background: #e9d5ff; color: #6b21a8; }
         .status-cancelled { background: #fee2e2; color: #991b1b; }
         .status-pending { background: #fef3c7; color: #92400e; }
+
+        .cancel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .cancel-card {
+            border-radius: 14px;
+            border: 1px solid rgba(153, 27, 27, 0.14);
+            background: #fff5f5;
+            box-shadow: 0 8px 20px rgba(33, 26, 16, 0.05);
+            padding: 1rem;
+        }
     </style>
 
     <div class="history-shell">
@@ -131,6 +145,43 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <section class="mt-7">
+            <h2 class="section-title text-3xl font-semibold text-stone-900">Cancelled Bookings</h2>
+            <div class="mt-3 space-y-3">
+                @forelse ($cancelled as $reservation)
+                    <div class="cancel-card">
+                        <div class="cancel-grid">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Reference</p>
+                                <p class="mt-1 font-semibold text-stone-900">AUR-{{ $reservation->created_at->format('Ymd') }}-{{ str_pad((string) $reservation->id, 6, '0', STR_PAD_LEFT) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Room</p>
+                                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->room->roomType->name }} ({{ $reservation->room->room_number }})</p>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Dates</p>
+                                <p class="mt-1 font-semibold text-stone-900">{{ $reservation->check_in->format('M d, Y') }} - {{ $reservation->check_out->format('M d, Y') }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Cancelled On</p>
+                                <p class="mt-1 font-semibold text-stone-900">{{ optional($reservation->cancelled_at)->format('M d, Y h:i A') }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 rounded-xl border border-rose-200 bg-white p-4 text-sm text-rose-900">
+                            <p class="font-semibold">Cancellation Reason</p>
+                            <p class="mt-1">{{ $reservation->cancellation_reason }}</p>
+                            @if ($reservation->cancelledBy)
+                                <p class="mt-2 text-xs text-rose-700">Cancelled by {{ $reservation->cancelledBy->name }}</p>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="table-card text-stone-500">You have no cancelled bookings.</div>
+                @endforelse
             </div>
         </section>
     </div>

@@ -39,6 +39,10 @@
             background: linear-gradient(135deg, #d97706, #b45309);
         }
 
+        .confirmed-badge.is-cancelled {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+
         .confirmed-badge svg {
             width: 20px;
             height: 20px;
@@ -104,14 +108,23 @@
     <div class="confirm-shell">
         @php
             $isPaid = $book->payment_status === 'paid';
+            $isCancelled = $book->status === 'cancelled';
         @endphp
 
-        <div class="confirmed-badge {{ $isPaid ? 'is-confirmed' : 'is-pending' }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+        <div class="confirmed-badge {{ $isCancelled ? 'is-cancelled' : ($isPaid ? 'is-confirmed' : 'is-pending') }}">
+            @if ($isCancelled)
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            @else
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            @endif
             <span class="confirmed-badge-text">
-                {{ $isPaid ? 'Booking Confirmed - Your Room is Booked' : 'Booking Pending - Waiting for Payment' }}
+                {{ $isCancelled ? 'Booking Cancelled' : ($isPaid ? 'Booking Confirmed - Your Room is Booked' : 'Booking Pending - Waiting for Payment') }}
             </span>
         </div>
 
@@ -123,11 +136,22 @@
             <a href="{{ route('customer.history') }}" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50">View My Bookings</a>
         </div>
 
-        @if (! $isPaid)
+        @if (! $isPaid && ! $isCancelled)
             <div class="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 Payment is still pending for this booking.
                 <a href="{{ route('customer.booking.payment', $book) }}" class="font-semibold underline">Continue payment</a>
                 before the payment window expires.
+            </div>
+        @endif
+
+        @if ($isCancelled)
+            <div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-900">
+                <p class="font-semibold">Your booking was cancelled.</p>
+                <p class="mt-2"><span class="font-semibold">Reason:</span> {{ $book->cancellation_reason }}</p>
+                <p class="mt-1"><span class="font-semibold">Cancelled on:</span> {{ optional($book->cancelled_at)->format('M d, Y h:i A') }}</p>
+                @if ($book->cancelledBy)
+                    <p class="mt-1"><span class="font-semibold">Cancelled by:</span> {{ $book->cancelledBy->name }}</p>
+                @endif
             </div>
         @endif
 

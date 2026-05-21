@@ -27,6 +27,9 @@ class Booking extends Model
         'payment_method',
         'payment_paid_at',
         'payment_expires_at',
+        'cancellation_reason',
+        'cancelled_by',
+        'cancelled_at',
     ];
 
     protected function casts(): array
@@ -37,6 +40,7 @@ class Booking extends Model
             'total_amount' => 'decimal:2',
             'payment_paid_at' => 'datetime',
             'payment_expires_at' => 'datetime',
+            'cancelled_at' => 'datetime',
         ];
     }
 
@@ -48,6 +52,11 @@ class Booking extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     public function getNightsAttribute(): int

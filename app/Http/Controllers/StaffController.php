@@ -183,7 +183,7 @@ class StaffController extends Controller
      */
     public function showBooking(Booking $book)
     {
-        $book->load(['room.roomType', 'user']);
+        $book->load(['room.roomType', 'user', 'cancelledBy']);
 
         return view('staff.booking-detail', [
             'book' => $book,

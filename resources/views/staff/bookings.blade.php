@@ -190,10 +190,15 @@
                                         </form>
                                     @endif
 
+                                    @if ($book->status !== 'checked_out' && $book->status !== 'cancelled')
+                                        <button type="button" class="action-link bg-red-500 text-white" data-open-booking-cancel-modal="booking-cancel-modal-{{ $book->id }}">Cancel</button>
+                                    @endif
+
                                     <a href="{{ route('staff.booking-detail', $book) }}" class="action-link" style="background: #e5e7eb; color: #374151;">View</a>
                                 </div>
                             </td>
                         </tr>
+                        @include('bookings.partials.cancel-modal', ['book' => $book])
                     @empty
                         <tr>
                             <td colspan="5" class="py-5 text-center text-gray-400">No bookings found.</td>

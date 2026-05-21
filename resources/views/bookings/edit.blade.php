@@ -7,7 +7,7 @@
     <form action="{{ route('bookings.update', $book) }}" method="POST" class="surface mt-6 p-5">
         @csrf
         @method('PUT')
-        @include('books._form')
+        @include('bookings._form')
 
         <div class="mt-5 flex gap-3">
             <button class="btn-primary px-4 py-2.5">Update Booking</button>

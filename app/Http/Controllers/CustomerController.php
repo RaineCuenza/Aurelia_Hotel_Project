@@ -14,7 +14,11 @@ class CustomerController extends Controller
 {
     public function home()
     {
-        $featuredRoomTypes = RoomType::withCount('rooms')
+        $featuredRoomTypes = RoomType::withCount([
+            'rooms as available_rooms_count' => function ($query) {
+                $query->where('status', 'available');
+            },
+        ])
             ->orderBy('base_price')
             ->limit(3)
             ->get();
@@ -220,6 +224,9 @@ class CustomerController extends Controller
             $lockedBook->update([
                 'status' => 'cancelled',
                 'payment_status' => 'failed',
+                'cancellation_reason' => 'Payment was cancelled during checkout.',
+                'cancelled_by' => null,
+                'cancelled_at' => now(),
             ]);
 
             $lockedBook->room->update(['status' => 'available']);
@@ -247,7 +254,7 @@ class CustomerController extends Controller
             abort(403, 'You are not allowed to view this booking.');
         }
 
-        $book->load('room.roomType');
+        $book->load(['room.roomType', 'cancelledBy']);
         $reference = $this->bookingReference($book);
 
         return view('customer.booking-confirmation', [
@@ -284,10 +291,17 @@ class CustomerController extends Controller
             ->latest('check_out')
             ->get();
 
+        $cancelled = Booking::with(['room.roomType', 'cancelledBy'])
+            ->where('user_id', $user->id)
+            ->where('status', 'cancelled')
+            ->latest('cancelled_at')
+            ->get();
+
         return view('customer.history', [
             'activeStay' => $activeStay,
             'upcoming' => $upcoming,
             'past' => $past,
+            'cancelled' => $cancelled,
         ]);
     }
 
@@ -350,6 +364,9 @@ class CustomerController extends Controller
         $book->update([
             'status' => 'cancelled',
             'payment_status' => 'expired',
+            'cancellation_reason' => 'Payment window expired before completion.',
+            'cancelled_by' => null,
+            'cancelled_at' => now(),
         ]);
 
         $book->room()->update(['status' => 'available']);

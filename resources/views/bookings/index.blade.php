@@ -172,20 +172,18 @@
                                         </form>
                                     @endif
 
-                                    @if ($book->status !== 'cancelled')
-                                        <form action="{{ route('bookings.status', $book) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="cancelled">
-                                            <button class="action-link bg-red-500 text-white">Cancel</button>
-                                        </form>
+                                    @if ($book->status !== 'cancelled' && $book->status !== 'checked_out')
+                                        <button type="button" class="action-link bg-red-500 text-white" data-open-booking-cancel-modal="booking-cancel-modal-{{ $book->id }}">Cancel</button>
                                     @endif
 
-                                    <a href="{{ route('bookings.edit', $book) }}" class="action-link bg-amber-400 text-slate-950">Edit</a>
+                                    @if ($book->status !== 'cancelled')
+                                        <a href="{{ route('bookings.edit', $book) }}" class="action-link bg-amber-400 text-slate-950">Edit</a>
+                                    @endif
                                     <a href="{{ route('bookings.show', $book) }}" class="action-link bg-slate-200 text-slate-900">View</a>
                                 </div>
                             </td>
                         </tr>
+                        @include('bookings.partials.cancel-modal', ['book' => $book])
                     @empty
                         <tr>
                             <td colspan="6" class="py-5 text-gray-400">No bookings found.</td>

@@ -37,6 +37,14 @@
                 <p class="text-sm text-slate-500">Status</p>
                 <p class="font-semibold capitalize">{{ str_replace('_', ' ', $book->status) }}</p>
             </div>
+            @if ($book->status === 'cancelled')
+                <div class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-900">
+                    <p class="text-sm font-semibold uppercase tracking-[0.14em]">Cancellation Notice</p>
+                    <p class="mt-2 text-sm"><span class="font-semibold">Reason:</span> {{ $book->cancellation_reason }}</p>
+                    <p class="mt-1 text-sm"><span class="font-semibold">Cancelled on:</span> {{ optional($book->cancelled_at)->format('M d, Y h:i A') }}</p>
+                    <p class="mt-1 text-sm"><span class="font-semibold">Cancelled by:</span> {{ $book->cancelledBy?->name ?? 'System' }}</p>
+                </div>
+            @endif
             <div class="md:col-span-2">
                 <p class="text-sm text-slate-500">Special Requests</p>
                 <p class="font-semibold">{{ $book->special_requests ?: 'None' }}</p>
@@ -50,6 +58,11 @@
         <div class="mt-6 flex gap-3">
             <a href="{{ route('bookings.edit', $book) }}" class="btn-primary px-4 py-2.5">Edit</a>
             <a href="{{ route('bookings.index') }}" class="btn-secondary px-4 py-2.5">Back</a>
+            @if (! in_array($book->status, ['cancelled', 'checked_out'], true))
+                <button type="button" class="btn-secondary bg-red-600 px-4 py-2.5 text-white hover:opacity-90" data-open-booking-cancel-modal="booking-cancel-modal-{{ $book->id }}">Cancel Booking</button>
+            @endif
         </div>
     </div>
+
+    @include('bookings.partials.cancel-modal', ['book' => $book])
 @endsection
