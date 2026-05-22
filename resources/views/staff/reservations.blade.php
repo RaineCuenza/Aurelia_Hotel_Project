@@ -164,7 +164,12 @@
                                 <span class="text-xs text-gray-600">{{ $reservation->room->roomType->name }}</span>
                             </td>
                             <td class="py-3 pr-3 text-gray-700">
-                                <span class="text-xs">In:</span> {{ $reservation->check_in->format('M d, Y') }}<br>
+                                <span class="text-xs">In:</span>
+                                @if(!empty($reservation->check_in_at))
+                                    {{ $reservation->check_in_at->format('M d, Y h:i A') }}<br>
+                                @else
+                                    {{ $reservation->check_in->format('M d, Y') }}<br>
+                                @endif
                                 <span class="text-xs">Out:</span> {{ $reservation->check_out->format('M d, Y') }}
                             </td>
                             <td class="py-3 pr-3">
