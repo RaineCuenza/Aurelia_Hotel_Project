@@ -11,15 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->text('cancellation_reason')->nullable()->after('payment_expires_at');
-            $table->foreignId('cancelled_by')
-                ->nullable()
-                ->after('cancellation_reason')
-                ->constrained('users')
-                ->nullOnDelete();
-            $table->timestamp('cancelled_at')->nullable()->after('cancelled_by');
-        });
+        if (! Schema::hasColumn('bookings', 'cancellation_reason')
+            || ! Schema::hasColumn('bookings', 'cancelled_by')
+            || ! Schema::hasColumn('bookings', 'cancelled_at')) {
+            Schema::table('bookings', function (Blueprint $table) {
+                if (! Schema::hasColumn('bookings', 'cancellation_reason')) {
+                    $table->text('cancellation_reason')->nullable()->after('payment_expires_at');
+                }
+
+                if (! Schema::hasColumn('bookings', 'cancelled_by')) {
+                    $table->foreignId('cancelled_by')
+                        ->nullable()
+                        ->after('cancellation_reason')
+                        ->constrained('users')
+                        ->nullOnDelete();
+                }
+
+                if (! Schema::hasColumn('bookings', 'cancelled_at')) {
+                    $table->timestamp('cancelled_at')->nullable()->after('cancelled_by');
+                }
+            });
+        }
     }
 
     /**
@@ -28,8 +40,25 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('cancelled_by');
-            $table->dropColumn(['cancellation_reason', 'cancelled_at']);
+            if (Schema::hasColumn('bookings', 'cancelled_by')) {
+                try {
+                    $table->dropConstrainedForeignId('cancelled_by');
+                } catch (\Throwable $e) {
+                    // ignore if constraint already removed
+                }
+            }
+
+            $cols = [];
+            if (Schema::hasColumn('bookings', 'cancellation_reason')) {
+                $cols[] = 'cancellation_reason';
+            }
+            if (Schema::hasColumn('bookings', 'cancelled_at')) {
+                $cols[] = 'cancelled_at';
+            }
+
+            if (! empty($cols)) {
+                $table->dropColumn($cols);
+            }
         });
     }
 };

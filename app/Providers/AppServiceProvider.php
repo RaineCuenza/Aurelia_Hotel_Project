@@ -147,9 +147,11 @@ class AppServiceProvider extends ServiceProvider
                     );
                 }
             } elseif ($user->role === 'customer') {
+                // Only treat confirmed or in-progress stays as "upcoming" for customers.
+                // Pending bookings await payment confirmation and should not trigger nav alerts.
                 $upcoming = Booking::where('user_id', $user->id)
                     ->whereDate('check_in', '>=', $today)
-                    ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
+                    ->whereIn('status', ['confirmed', 'checked_in'])
                     ->count();
 
                 $confirmedRecent = Booking::where('user_id', $user->id)

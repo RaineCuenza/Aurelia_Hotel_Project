@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:admin,staff')
         ->name('rooms.search');
     Route::get('/search.php', function () {
-        return redirect()->route('rooms.search', request()->query());
+        return redirect()->route('rooms.search')->withQueryString();
     })->name('search.page');
 
     Route::get('/bookings', [BookingController::class, 'index'])
@@ -126,11 +126,11 @@ Route::middleware('auth')->group(function () {
         ->name('summary.page');
 
     Route::get('/book.php', function () {
-        return redirect()->route('bookings.create', request()->query());
+        return redirect()->route('bookings.create')->withQueryString();
     })->middleware('role:admin,staff')->name('book.page');
 
     Route::get('/reserve.php', function () {
-        return redirect()->route('bookings.create', request()->query());
+        return redirect()->route('bookings.create')->withQueryString();
     })->middleware('role:admin,staff')->name('reserve.page');
 
     // Staff Routes

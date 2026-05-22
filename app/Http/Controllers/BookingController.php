@@ -220,41 +220,40 @@ class BookingController extends Controller
             return $lockedBook->fresh(['room.roomType', 'cancelledBy']);
         });
 
-        if ($request->boolean('notify_customer')) {
-            Notification::route('mail', $cancelledBook->guest_email)
-                ->notify(new class($cancelledBook) extends BaseNotification
+        // Always notify the guest by email when an admin/staff cancels their booking.
+        Notification::route('mail', $cancelledBook->guest_email)
+            ->notify(new class($cancelledBook) extends BaseNotification
+            {
+                use Queueable;
+
+                public function __construct(private readonly Booking $booking)
                 {
-                    use Queueable;
+                }
 
-                    public function __construct(private readonly Booking $booking)
-                    {
-                    }
+                /**
+                 * @return array<int, string>
+                 */
+                public function via(object $notifiable): array
+                {
+                    return ['mail'];
+                }
 
-                    /**
-                     * @return array<int, string>
-                     */
-                    public function via(object $notifiable): array
-                    {
-                        return ['mail'];
-                    }
+                public function toMail(object $notifiable): MailMessage
+                {
+                    $booking = $this->booking->loadMissing('room.roomType', 'cancelledBy');
 
-                    public function toMail(object $notifiable): MailMessage
-                    {
-                        $booking = $this->booking->loadMissing('room.roomType', 'cancelledBy');
-
-                        return (new MailMessage)
-                            ->subject('Your booking was cancelled')
-                            ->greeting('Hello '.$booking->guest_name.',')
-                            ->line('Your booking for Room '.$booking->room->room_number.' has been cancelled.')
-                            ->line('Check-in: '.Carbon::parse($booking->check_in)->format('M d, Y'))
-                            ->line('Check-out: '.Carbon::parse($booking->check_out)->format('M d, Y'))
-                            ->line('Cancellation reason: '.$booking->cancellation_reason)
-                            ->line('Cancelled on: '.optional($booking->cancelled_at)->format('M d, Y h:i A'))
-                            ->lineIf($booking->cancelledBy !== null, 'Cancelled by: '.$booking->cancelledBy->name)
-                            ->line('If you need help, please contact the front desk or create a new booking for a future stay.');
-                    }
-                });
-        }
+                    return (new MailMessage)
+                        ->subject('Your booking was cancelled')
+                        ->greeting('Hello '.$booking->guest_name.',')
+                        ->line('Your booking for Room '.$booking->room->room_number.' has been cancelled.')
+                        ->line('Check-in: '.Carbon::parse($booking->check_in)->format('M d, Y'))
+                        ->line('Check-out: '.Carbon::parse($booking->check_out)->format('M d, Y'))
+                        ->line('Cancellation reason: '.$booking->cancellation_reason)
+                        ->line('Cancelled on: '.optional($booking->cancelled_at)->format('M d, Y h:i A'))
+                        ->lineIf($booking->cancelledBy !== null, 'Cancelled by: '.$booking->cancelledBy->name)
+                        ->line('If you need help, please contact the front desk or create a new booking for a future stay.');
+                }
+            });
 
         return redirect()
             ->route('bookings.index')
