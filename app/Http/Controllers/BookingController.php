@@ -78,6 +78,9 @@ class BookingController extends Controller
                 'payment_status' => 'paid',
                 'payment_method' => 'manual_frontdesk',
                 'payment_paid_at' => now(),
+                // store check-in/out as UTC datetimes (use app timezone when parsing)
+                'check_in_at' => Carbon::parse(($validated['check_in'] ?? $request->input('check_in')).' 15:00', config('app.timezone'))->setTimezone('UTC'),
+                'check_out_at' => Carbon::parse(($validated['check_out'] ?? $request->input('check_out')).' 11:00', config('app.timezone'))->setTimezone('UTC'),
             ]);
 
             $room->update(['status' => 'booked']);
@@ -138,6 +141,8 @@ class BookingController extends Controller
             'guest_phone' => $validated['guest_phone'] ?? $book->guest_phone,
             'status' => $validated['status'] ?? $book->status,
             'total_amount' => $total,
+            'check_in_at' => Carbon::parse(($validated['check_in'] ?? $book->check_in).' 15:00', config('app.timezone'))->setTimezone('UTC'),
+            'check_out_at' => Carbon::parse(($validated['check_out'] ?? $book->check_out).' 11:00', config('app.timezone'))->setTimezone('UTC'),
         ]);
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully.');

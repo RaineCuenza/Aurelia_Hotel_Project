@@ -236,7 +236,7 @@ class CustomerController extends Controller
 
         if ($updated->payment_status === 'paid') {
             return redirect()->route('customer.booking.confirmation', $updated)
-                ->with('success', 'Mock payment successful. Your booking is now confirmed.');
+                ->with('success', 'Payment successful. Your booking is now confirmed.');
         }
 
         if ($updated->payment_status === 'expired') {

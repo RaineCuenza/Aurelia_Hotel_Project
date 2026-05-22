@@ -23,7 +23,11 @@
             </div>
             <div>
                 <p class="text-sm text-slate-500">Check-in</p>
-                <p class="font-semibold">{{ $reservation->check_in->format('M d, Y') }}</p>
+                @if(!empty($reservation->check_in_at))
+                    <p class="font-semibold">{{ $reservation->check_in_at->format('M d, Y h:i A') }}</p>
+                @else
+                    <p class="font-semibold">{{ $reservation->check_in->format('M d, Y') }}</p>
+                @endif
             </div>
             <div>
                 <p class="text-sm text-slate-500">Check-out</p>

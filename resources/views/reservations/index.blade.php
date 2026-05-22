@@ -154,7 +154,11 @@
                             </td>
                             <td class="py-3 pr-3 text-gray-800">{{ $reservation->room->room_number }} ({{ $reservation->room->roomType->name }})</td>
                             <td class="py-3 pr-3 text-gray-700">
-                                {{ $reservation->check_in->format('M d, Y') }}<br>
+                                @if(!empty($reservation->check_in_at))
+                                    {{ $reservation->check_in_at->format('M d, Y h:i A') }}<br>
+                                @else
+                                    {{ $reservation->check_in->format('M d, Y') }}<br>
+                                @endif
                                 {{ $reservation->check_out->format('M d, Y') }}
                             </td>
                             <td class="py-3 pr-3 font-semibold text-amber-900">PHP {{ number_format($reservation->total_amount, 2) }}</td>

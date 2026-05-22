@@ -155,7 +155,11 @@
             <div class="detail-grid">
                 <div class="detail-item">
                     <p class="detail-label">Check-in Date</p>
-                    <p class="detail-value">{{ $book->check_in->format('M d, Y') }}</p>
+                    @if(!empty($book->check_in_at))
+                        <p class="detail-value">{{ $book->check_in_at->format('M d, Y h:i A') }}</p>
+                    @else
+                        <p class="detail-value">{{ $book->check_in->format('M d, Y') }}</p>
+                    @endif
                 </div>
                 <div class="detail-item">
                     <p class="detail-label">Check-out Date</p>

@@ -29,6 +29,10 @@ class Booking extends Model
         'payment_method',
         'payment_paid_at',
         'payment_expires_at',
+        'check_in_time',
+        'check_out_time',
+        'check_in_at',
+        'check_out_at',
         'cancellation_reason',
         'cancelled_by',
         'cancelled_at',
@@ -40,10 +44,45 @@ class Booking extends Model
             'check_in' => 'date',
             'check_out' => 'date',
             'total_amount' => 'decimal:2',
+            'check_in_time' => 'string',
+            'check_out_time' => 'string',
+            'check_in_at' => 'datetime',
+            'check_out_at' => 'datetime',
             'payment_paid_at' => 'datetime',
             'payment_expires_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
+    }
+
+    public function getCheckInDateTimeAttribute(): ?\Illuminate\Support\Carbon
+    {
+        if ($this->check_in_at) {
+            return $this->check_in_at;
+        }
+
+        if (empty($this->check_in)) {
+            return null;
+        }
+
+        $time = $this->check_in_time ?: '00:00:00';
+
+        // parse in app timezone and return as Carbon (app timezone)
+        return \Illuminate\Support\Carbon::parse($this->check_in.' '.$time, config('app.timezone'));
+    }
+
+    public function getCheckOutDateTimeAttribute(): ?\Illuminate\Support\Carbon
+    {
+        if ($this->check_out_at) {
+            return $this->check_out_at;
+        }
+
+        if (empty($this->check_out)) {
+            return null;
+        }
+
+        $time = $this->check_out_time ?: '00:00:00';
+
+        return \Illuminate\Support\Carbon::parse($this->check_out.' '.$time, config('app.timezone'));
     }
 
     public function room(): BelongsTo

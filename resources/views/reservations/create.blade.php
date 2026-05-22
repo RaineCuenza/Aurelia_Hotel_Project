@@ -84,7 +84,7 @@
 
             @if ($errors->any())
                 <div class="mt-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    <p class="font-semibold">Please fix the following errors:</p>
+                    <p class="font-semibold">Errors found:</p>
                     <ul class="mt-1 list-disc pl-5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

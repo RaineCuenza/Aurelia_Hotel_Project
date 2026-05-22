@@ -63,7 +63,11 @@
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Dates</p>
-                <p class="mt-1 font-semibold text-stone-900">{{ $book->check_in->format('M d, Y') }} - {{ $book->check_out->format('M d, Y') }}</p>
+                @if(!empty($book->check_in_at) && !empty($book->check_out_at))
+                    <p class="mt-1 font-semibold text-stone-900">{{ $book->check_in_at->format('M d, Y h:i A') }} - {{ $book->check_out_at->format('M d, Y h:i A') }}</p>
+                @else
+                    <p class="mt-1 font-semibold text-stone-900">{{ $book->check_in->format('M d, Y') }} - {{ $book->check_out->format('M d, Y') }}</p>
+                @endif
             </div>
             <div>
                 <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Total</p>
@@ -76,25 +80,25 @@
         </div>
 
         <div class="panel mt-4">
-            <p class="text-sm text-stone-700">Choose a mock outcome to simulate payment gateway response:</p>
+            <p class="text-sm text-stone-700">Choose a outcome to simulate payment gateway response:</p>
 
             <div class="mt-4 flex flex-wrap gap-2">
                 <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="success">
-                    <button type="submit" class="mock-btn mock-success">Simulate Payment Success</button>
+                    <button type="submit" class="mock-btn mock-success">Confirm Payment</button>
                 </form>
 
                 <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="failed">
-                    <button type="submit" class="mock-btn mock-failed">Simulate Payment Failed</button>
+                    <button type="submit" class="mock-btn mock-failed">Payment Failed</button>
                 </form>
 
                 <form action="{{ route('customer.booking.payment.process', $book) }}" method="POST">
                     @csrf
                     <input type="hidden" name="outcome" value="cancelled">
-                    <button type="submit" class="mock-btn mock-cancel">Simulate Cancel</button>
+                    <button type="submit" class="mock-btn mock-cancel">Cancel Payment</button>
                 </form>
             </div>
         </div>
